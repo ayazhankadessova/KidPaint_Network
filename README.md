@@ -2,6 +2,13 @@
 
 KidPaint is a paint app for kids. A kid can use the pen or bucket function to draw and paint something on the sketchpad.
 
+## Deadlines:
+
+- Init setup: November, 4
+- 50%: November, 9
+- Finish Basic by : November, 15
+- **Deadline: November, 26**
+
 ## Features: Basic client-server approach
 
 1. A server runs in the same subnet. The server-side program does not require any GUI.
