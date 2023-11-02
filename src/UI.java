@@ -69,6 +69,8 @@ public class UI extends JFrame {
         in.read(buffer, 0, len);
 
         // update chat room
+        // dont do it rn -> do it when u have time
+        // ask UI to do smth for us
         SwingUtilities.invokeLater(() -> {
           textArea.append(new String(buffer, 0, len) + "\n");
         });
