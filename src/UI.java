@@ -55,6 +55,31 @@ public class UI extends JFrame {
     return instance;
   }
 
+  public void receive(DataInputStream in) {
+    byte[] buffer = new byte[1024];
+    // TODo: receive data from server
+    // Add thread
+    // CHECK THIS from screenshot
+
+    try {
+      byte[] buffer = new byte[1024];
+      DataInputStream in = new DataInputStream(socket.getInputStream());
+      while (true) {
+        int len = in.readInt();
+        in.read(buffer, 0, len);
+
+        // update chat room
+        SwingUtilities.invokeLater(() -> {
+          textArea.append(new String(buffer, 0, len) + "\n");
+        });
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  // TODO: GUIEchoClient -> Thread
+
   /**
    * private constructor. To create an instance of UI, call UI.getInstance() instead.
    */
@@ -240,6 +265,7 @@ public class UI extends JFrame {
     msgPanel.add(msgField, BorderLayout.SOUTH);
 
     // handle key-input event of the message field
+    // addKeyListener -> textfield allows to interact w/ a user
     msgField.addKeyListener(
       new KeyListener() {
         @Override
@@ -288,6 +314,7 @@ public class UI extends JFrame {
   /**
    * it will be invoked if the user inputted text in the message field
    * @param text - user inputted text
+   * // TODO: send to server
    */
   private void onTextInputted(String text) {
     chatArea.setText(chatArea.getText() + text + "\n");
