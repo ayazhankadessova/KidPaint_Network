@@ -319,7 +319,15 @@ public class UI extends JFrame {
    * // TODO: send to server
    */
   private void onTextInputted(String text) {
-    chatArea.setText(chatArea.getText() + text + "\n");
+    // chatArea.setText(chatArea.getText() + text + "\n");
+    // sys.out for testing
+    out.writeInt(0); // 0 represents the message type - chat msg
+    System.out.println(0);
+    out.writeInt(text.length());
+    System.out.println(text.length());
+    out.write(text.getBytes());
+    System.out.println(text.getBytes());
+    out.flush();
   }
 
   /**
