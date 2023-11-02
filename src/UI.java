@@ -13,6 +13,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JFrame;
@@ -56,28 +58,55 @@ public class UI extends JFrame {
   }
 
   public void receive(DataInputStream in) {
-    byte[] buffer = new byte[1024];
+    // byte[] buffer = new byte[1024];
     // TODo: receive data from server
     // Add thread
     // CHECK THIS from screenshot
 
     try {
-      byte[] buffer = new byte[1024];
-      DataInputStream in = new DataInputStream(socket.getInputStream());
       while (true) {
-        int len = in.readInt();
-        in.read(buffer, 0, len);
+        int type = in.readInt();
 
-        // update chat room
-        // dont do it rn -> do it when u have time
-        // ask UI to do smth for us
-        SwingUtilities.invokeLater(() -> {
-          textArea.append(new String(buffer, 0, len) + "\n");
-        });
+        switch (type) {
+          case 0:
+            // text message
+            break;
+          case 1:
+            // drawing message
+            break;
+          default:
+          // others
+        }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(); // for debugging only. remove it then
     }
+  }
+
+  private void receiveTextMessage(DataInputStream in) throws IOException {
+    byte[] buffer = new byte[1024];
+    int len = in.readInt();
+    in.read(buffer, 0, len);
+
+    String msg = new String(buffer, 0, len);
+    System.out.println(msg);
+
+    SwingUtilities.invokeLater(() -> {
+      chatArea.append(msg + "\n");
+    });
+  }
+
+  private void receiveTextMessage(DataInputStream in) throws IOException {
+    byte[] buffer = new byte[1024];
+    int len = in.readInt();
+    in.read(buffer, 0, len);
+
+    String msg = new String(buffer, 0, len);
+    System.out.println(msg);
+
+    SwingUtilities.invokeLater(() -> {
+      chatArea.append(msg + "\n");
+    });
   }
 
   // TODO: GUIEchoClient -> Thread
@@ -166,9 +195,17 @@ public class UI extends JFrame {
       new MouseMotionListener() {
         @Override
         public void mouseDragged(MouseEvent e) {
-          if (
-            paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
-          ) paintPixel(e.getX() / blockSize, e.getY() / blockSize);
+          if (paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0) {
+            try {
+              out.writeInt(1);
+              out.writeInt(selectColor);
+              out.writeInt(e.getX() / blockSize);
+              out.writeInt(e.getY() / blockSize);
+              out.flush();
+            } catch (IOException ex) {
+              ex.printStackTrace();
+            }
+          }
         }
 
         @Override
