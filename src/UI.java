@@ -14,7 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JFrame;
@@ -33,6 +35,10 @@ enum PaintMode {
 
 public class UI extends JFrame {
 
+  Socket socket;
+  DataInputStream in;
+  DataOutputStream out;
+
   private JTextField msgField;
   private JTextArea chatArea;
   private JPanel pnlColorPicker;
@@ -41,7 +47,7 @@ public class UI extends JFrame {
   private JToggleButton tglBucket;
 
   private static UI instance;
-  private int selectedColor = -543230; //golden
+  private int selectedColor = -543230; // golden
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -49,42 +55,40 @@ public class UI extends JFrame {
 
   /**
    * get the instance of UI. Singleton design pattern.
+   *
    * @return
    */
-  public static UI getInstance() {
+  public static UI getInstance() throws IOException {
     if (instance == null) instance = new UI();
 
     return instance;
   }
 
-  public void receive(DataInputStream in) {
-    // byte[] buffer = new byte[1024];
-    // TODo: receive data from server
-    // Add thread
-    // CHECK THIS from screenshot
-
+  private void receive(DataInputStream in) throws IOException {
     try {
       while (true) {
         int type = in.readInt();
 
         switch (type) {
           case 0:
-            // text message
+            //receive text
+            receiveTextMessage(in);
             break;
           case 1:
-            // drawing message
+            //receive pixel message
+            receivePixelMessage(in);
             break;
           default:
-          // others
         }
       }
-    } catch (IOException e) {
-      e.printStackTrace(); // for debugging only. remove it then
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
   }
 
   private void receiveTextMessage(DataInputStream in) throws IOException {
     byte[] buffer = new byte[1024];
+
     int len = in.readInt();
     in.read(buffer, 0, len);
 
@@ -96,25 +100,34 @@ public class UI extends JFrame {
     });
   }
 
-  private void receiveTextMessage(DataInputStream in) throws IOException {
-    byte[] buffer = new byte[1024];
-    int len = in.readInt();
-    in.read(buffer, 0, len);
-
-    String msg = new String(buffer, 0, len);
-    System.out.println(msg);
-
-    SwingUtilities.invokeLater(() -> {
-      chatArea.append(msg + "\n");
-    });
+  private void receivePixelMessage(DataInputStream in) throws IOException {
+    int color = in.readInt();
+    int x = in.readInt();
+    int y = in.readInt();
+    paintPixel(color, x, y);
+    //TODO: Update the screen
   }
-
-  // TODO: GUIEchoClient -> Thread
 
   /**
-   * private constructor. To create an instance of UI, call UI.getInstance() instead.
+   * private constructor. To create an instance of UI, call UI.getInstance()
+   * instead.
    */
-  private UI() {
+  private UI() throws IOException {
+    socket = new Socket("127.0.0.1", 12345);
+    in = new DataInputStream(socket.getInputStream());
+    out = new DataOutputStream(socket.getOutputStream());
+
+    Thread t = new Thread(() -> {
+      try {
+        receive(in);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    });
+
+    t.start();
+
     setTitle("KidPaint");
 
     JPanel basePanel = new JPanel();
@@ -195,16 +208,18 @@ public class UI extends JFrame {
       new MouseMotionListener() {
         @Override
         public void mouseDragged(MouseEvent e) {
-          if (paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0) {
-            try {
-              out.writeInt(1);
-              out.writeInt(selectColor);
-              out.writeInt(e.getX() / blockSize);
-              out.writeInt(e.getY() / blockSize);
-              out.flush();
-            } catch (IOException ex) {
-              ex.printStackTrace();
-            }
+          if (
+            paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
+          ) //					paintPixel(e.getX() / blockSize, e.getY() / blockSize);
+          try {
+            // send data to the server instead of updating the screen
+            out.writeInt(1);
+            out.writeInt(selectedColor);
+            out.writeInt(e.getX() / blockSize);
+            out.writeInt(e.getY() / blockSize);
+            out.flush();
+          } catch (IOException ex) {
+            ex.printStackTrace(); // for debugging, remove it in production stage
           }
         }
 
@@ -304,7 +319,6 @@ public class UI extends JFrame {
     msgPanel.add(msgField, BorderLayout.SOUTH);
 
     // handle key-input event of the message field
-    // addKeyListener -> textfield allows to interact w/ a user
     msgField.addKeyListener(
       new KeyListener() {
         @Override
@@ -340,7 +354,9 @@ public class UI extends JFrame {
   }
 
   /**
-   * it will be invoked if the user selected the specific color through the color picker
+   * it will be invoked if the user selected the specific color through the color
+   * picker
+   *
    * @param colorValue - the selected color
    */
   public void selectColor(int colorValue) {
@@ -352,23 +368,24 @@ public class UI extends JFrame {
 
   /**
    * it will be invoked if the user inputted text in the message field
+   *
    * @param text - user inputted text
-   * // TODO: send to server
    */
   private void onTextInputted(String text) {
     // chatArea.setText(chatArea.getText() + text + "\n");
-    // sys.out for testing
-    out.writeInt(0); // 0 represents the message type - chat msg
-    System.out.println(0);
-    out.writeInt(text.length());
-    System.out.println(text.length());
-    out.write(text.getBytes());
-    System.out.println(text.getBytes());
-    out.flush();
+    try {
+      out.writeInt(0); // 0 means this is a chat message
+
+      out.writeInt(text.length());
+      out.write(text.getBytes());
+      out.flush();
+      System.out.println(0);
+    } catch (IOException e) {}
   }
 
   /**
    * change the color of a specific pixel
+   *
    * @param col, row - the position of the selected pixel
    */
   public void paintPixel(int col, int row) {
@@ -378,8 +395,16 @@ public class UI extends JFrame {
     paintPanel.repaint(col * blockSize, row * blockSize, blockSize, blockSize);
   }
 
+  public void paintPixel(int color, int col, int row) {
+    if (col >= data.length || row >= data[0].length) return;
+
+    data[col][row] = color;
+    paintPanel.repaint(col * blockSize, row * blockSize, blockSize, blockSize);
+  }
+
   /**
    * change the color of a specific area
+   *
    * @param col, row - the position of the selected pixel
    * @return a list of modified pixels
    */
@@ -424,6 +449,7 @@ public class UI extends JFrame {
 
   /**
    * set pixel data and block size
+   *
    * @param data
    * @param blockSize
    */

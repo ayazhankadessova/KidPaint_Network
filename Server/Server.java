@@ -94,6 +94,21 @@ public class Server {
     int y = in.readInt();
     System.out.println("color: " + color + " x: " + x + " y: " + y);
     // TODO: finish from screenshot
+
+    synchronized (list) {
+      for (int i = 0; i < list.size(); i++) {
+        Socket s = list.get(i);
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+        out.writeInt(1);
+        out.writeInt(color);
+        out.writeInt(x);
+        out.writeInt(y);
+        out.flush();
+        // catch (IOException ex) {
+        //   System.out.println("Client already disconnected");
+        // }
+      }
+    }
   }
 
   public static void main(String[] args) throws IOException {

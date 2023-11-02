@@ -32,3 +32,23 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 1. Two types of the message:
 
 - 0 - chat message
+- 1 - drawing message
+
+2. FOward drawing message with type and length that we read from buffer
+
+## TODO:
+
+1. How to find a server?
+
+- Use UDP to find where the server is
+- send it to caller so that you know who to send
+- TCP connection
+- bucket info
+
+2. drew smth already, for somebody who connected later. also get smth that was there earlier
+
+- download current stash
+
+## DO not
+
+1. Dont implement undo (override, etc)
