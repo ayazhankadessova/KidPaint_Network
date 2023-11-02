@@ -26,3 +26,9 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 12. A new button should be added to the client-side program for saving the sketch data into a local file.
 13. A new button should be added to the client-side program for loading the sketch data from a local file. The sketch data must be sent to the server, and the sketchpads of all connected clients must be updated then.
 14. With this approach, all kids draw on the SAME sketch.
+
+## Overview
+
+1. Two types of the message:
+
+- 0 - chat message
