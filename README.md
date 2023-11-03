@@ -38,6 +38,11 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 ## TODO:
 
+[ ] Create draft connection
+[ ] Create Frame to ask for username
+[ ] Send bucket data
+[ ] Get original drawing
+
 1. How to find a server?
 
 - Use UDP to find where the server is

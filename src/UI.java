@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+// import java.awt.event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,6 +24,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -49,6 +52,10 @@ public class UI extends JFrame {
   private JPanel paintPanel;
   private JToggleButton tglPen;
   private JToggleButton tglBucket;
+  private static JLabel password1, label;
+  private static JTextField username;
+  private static JButton button;
+  private static JPasswordField Password;
 
   private static UI instance;
   private int selectedColor = -543230; // golden
@@ -166,8 +173,60 @@ public class UI extends JFrame {
 
     setTitle("KidPaint");
 
+    // Create login panel
+    JPanel loginPanel = new JPanel();
     JPanel basePanel = new JPanel();
-    getContentPane().add(basePanel, BorderLayout.CENTER);
+    JPanel msgPanel = new JPanel();
+
+    loginPanel.setLayout(new GridLayout(3, 2));
+
+    username = new JTextField();
+    Password = new JPasswordField();
+    button = new JButton("Login");
+
+    loginPanel.add(new JLabel("Username: "));
+    loginPanel.add(username);
+    loginPanel.add(new JLabel("Password: "));
+    loginPanel.add(Password);
+    loginPanel.add(button);
+
+    // Add action listener to the login button
+    button.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          String user = username.getText();
+          String pass = new String(Password.getPassword());
+
+          // Check the username and password. This is just an example, you should do this securely.
+          if (1 == 1) {
+            // If login is successful, remove the login panel and add the drawing panel.
+            getContentPane().remove(loginPanel);
+
+            // send username
+
+            getContentPane().add(basePanel, BorderLayout.CENTER);
+            getContentPane().add(msgPanel, BorderLayout.EAST);
+            validate();
+            repaint();
+          } else {
+            // If login fails, show an error message.
+            JOptionPane.showMessageDialog(
+              UI.this,
+              "Invalid username or password.",
+              "Login Failed",
+              JOptionPane.ERROR_MESSAGE
+            );
+          }
+        }
+      }
+    );
+
+    // // Add the login panel to the frame
+    getContentPane().add(loginPanel, BorderLayout.CENTER);
+
+    // JPanel basePanel = new JPanel();
+    // getContentPane().add(basePanel, BorderLayout.CENTER);
     basePanel.setLayout(new BorderLayout(0, 0));
 
     paintPanel =
@@ -342,10 +401,6 @@ public class UI extends JFrame {
         }
       }
     );
-
-    JPanel msgPanel = new JPanel();
-
-    getContentPane().add(msgPanel, BorderLayout.EAST);
 
     msgPanel.setLayout(new BorderLayout(0, 0));
 
