@@ -41,7 +41,7 @@ enum PaintMode {
 
 public class UI extends JFrame {
 
-  DatagramSocket socket2;
+  // DatagramSocket udpSocket;
   Socket socket;
   DataInputStream in;
   DataOutputStream out;
@@ -59,6 +59,9 @@ public class UI extends JFrame {
 
   private static UI instance;
   private int selectedColor = -543230; // golden
+
+  DatagramSocket udpSocket = new DatagramSocket(12346);
+  // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -119,19 +122,9 @@ public class UI extends JFrame {
     //TODO: Update the screen
   }
 
-  /**
-   * private constructor. To create an instance of UI, call UI.getInstance()
-   * instead.
-   */
-  private UI() throws IOException {
-    // When KidPaint (client) has just been launched, it shows a GUI for inputting the username. After inputting the name, the client broadcasts a request to the network using UDP.
-    // The server receives the request and sends a response to the client using UDP. The response contains the IP address and port number of the server.
-
-    DatagramSocket udpSocket = new DatagramSocket(12346);
-    udpSocket.setBroadcast(true);
-
-    // Broadcast "Is anyone here?" message
-    byte[] request = "Is anyone here?".getBytes();
+  private void broadcastMessage(String message) throws IOException {
+    // Broadcast the provided message
+    byte[] request = message.getBytes();
     DatagramPacket requestPacket = new DatagramPacket(
       request,
       request.length,
@@ -140,7 +133,6 @@ public class UI extends JFrame {
     );
     udpSocket.send(requestPacket);
 
-    // Receive server's response
     byte[] buffer = new byte[1024];
     DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length);
     udpSocket.receive(responsePacket);
@@ -170,7 +162,13 @@ public class UI extends JFrame {
     });
 
     t.start();
+  }
 
+  /**
+   * private constructor. To create an instance of UI, call UI.getInstance()
+   * instead.
+   */
+  private UI() throws IOException {
     setTitle("KidPaint");
 
     // Create login panel
@@ -204,6 +202,13 @@ public class UI extends JFrame {
             getContentPane().remove(loginPanel);
 
             // send username
+
+            try {
+              broadcastMessage(user);
+            } catch (IOException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            }
 
             getContentPane().add(basePanel, BorderLayout.CENTER);
             getContentPane().add(msgPanel, BorderLayout.EAST);

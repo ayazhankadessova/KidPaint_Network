@@ -37,7 +37,7 @@ public class Server {
         try {
           udpSocket.receive(packet);
           String message = new String(packet.getData(), 0, packet.getLength());
-          if (message.equals("Is anyone here?")) {
+          if (1 == 1) {
             System.out.println("Someone is asking my IP address");
             byte[] response =
               (
