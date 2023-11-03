@@ -65,7 +65,7 @@ public class UI extends JFrame {
     return instance;
   }
 
-  public void receive(DataInputStream in) {
+  private void receive(DataInputStream in) throws IOException {
     // byte[] buffer = new byte[1024];
     // TODo: receive data from server
     // Add thread
@@ -214,16 +214,18 @@ public class UI extends JFrame {
       new MouseMotionListener() {
         @Override
         public void mouseDragged(MouseEvent e) {
-          if (paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0) {
-            try {
-              out.writeInt(1);
-              out.writeInt(selectedColor);
-              out.writeInt(e.getX() / blockSize);
-              out.writeInt(e.getY() / blockSize);
-              out.flush();
-            } catch (IOException ex) {
-              ex.printStackTrace();
-            }
+          if (
+            paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
+          ) try {
+            //paintPixel(e.getX() / blockSize, e.getY() / blockSize);
+            // send data to the server instead of updating the screen
+            out.writeInt(1);
+            out.writeInt(selectedColor);
+            out.writeInt(e.getX() / blockSize);
+            out.writeInt(e.getY() / blockSize);
+            out.flush();
+          } catch (IOException ex) {
+            ex.printStackTrace(); // for debugging, remove it in production stage
           }
         }
 
@@ -374,17 +376,19 @@ public class UI extends JFrame {
    * @param text - user inputted text
    * // TODO: send to server
    */
-  private void onTextInputted(String text) throws IOException {
+  private void onTextInputted(String text) {
     // chatArea.setText(chatArea.getText() + text + "\n");
     // sys.out for testing
 
-    out.writeInt(0); // 0 represents the message type - chat msg
-    System.out.println(0);
-    out.writeInt(text.length());
-    System.out.println(text.length());
-    out.write(text.getBytes());
-    System.out.println(text.getBytes());
-    out.flush();
+    try {
+      out.writeInt(0); // 0 represents the message type - chat msg
+      System.out.println(0);
+      out.writeInt(text.length());
+      System.out.println(text.length());
+      out.write(text.getBytes());
+      System.out.println(text.getBytes());
+      out.flush();
+    } catch (IOException e) {}
   }
 
   /**
