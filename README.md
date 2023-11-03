@@ -40,6 +40,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 [x] Create draft connection
 [ ] ask username
+[ ] check username in Server
 [ ] in chat, display who is sending
 [x] Create Frame to ask for username
 [ ] modify Frame to ask for Username
