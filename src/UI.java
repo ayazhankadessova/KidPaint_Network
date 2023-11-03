@@ -16,6 +16,9 @@ import java.awt.event.MouseMotionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +38,7 @@ enum PaintMode {
 
 public class UI extends JFrame {
 
+  DatagramSocket socket2;
   Socket socket;
   DataInputStream in;
   DataOutputStream out;
@@ -113,7 +117,39 @@ public class UI extends JFrame {
    * instead.
    */
   private UI() throws IOException {
-    socket = new Socket("127.0.0.1", 12345);
+    // When KidPaint (client) has just been launched, it shows a GUI for inputting the username. After inputting the name, the client broadcasts a request to the network using UDP.
+    // The server receives the request and sends a response to the client using UDP. The response contains the IP address and port number of the server.
+
+    DatagramSocket udpSocket = new DatagramSocket(12346);
+    udpSocket.setBroadcast(true);
+
+    // Broadcast "Is anyone here?" message
+    byte[] request = "Is anyone here?".getBytes();
+    DatagramPacket requestPacket = new DatagramPacket(
+      request,
+      request.length,
+      InetAddress.getByName("255.255.255.255"),
+      5555
+    );
+    udpSocket.send(requestPacket);
+
+    // Receive server's response
+    byte[] buffer = new byte[1024];
+    DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length);
+    udpSocket.receive(responsePacket);
+    String serverInfo = new String(
+      responsePacket.getData(),
+      0,
+      responsePacket.getLength()
+    );
+    String[] parts = serverInfo.split(":");
+    System.out.println("Server's IP address: " + parts[0]);
+    String serverIP = parts[0];
+    int serverPort = Integer.parseInt(parts[1]);
+
+    // Establish TCP connection to the server
+    Socket socket = new Socket(serverIP, serverPort);
+
     in = new DataInputStream(socket.getInputStream());
     out = new DataOutputStream(socket.getOutputStream());
 
@@ -210,8 +246,7 @@ public class UI extends JFrame {
         public void mouseDragged(MouseEvent e) {
           if (
             paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
-          ) //					paintPixel(e.getX() / blockSize, e.getY() / blockSize);
-          try {
+          ) try { //					paintPixel(e.getX() / blockSize, e.getY() / blockSize);
             // send data to the server instead of updating the screen
             out.writeInt(1);
             out.writeInt(selectedColor);

@@ -27,6 +27,7 @@ public class Server {
     udpSocket = new DatagramSocket(udpPort);
 
     System.out.println("Listening at port : " + tcpPort);
+    System.out.println("Listening for UDP at port : " + udpPort);
 
     // Start a thread to listen for UDP packets
     new Thread(() -> {
@@ -37,12 +38,10 @@ public class Server {
           udpSocket.receive(packet);
           String message = new String(packet.getData(), 0, packet.getLength());
           if (message.equals("Is anyone here?")) {
+            System.out.println("Someone is asking my IP address");
             byte[] response =
               (
-                "Server is here at " +
-                InetAddress.getLocalHost().getHostAddress() +
-                ":" +
-                tcpPort
+                InetAddress.getLocalHost().getHostAddress() + ":" + tcpPort
               ).getBytes();
             DatagramPacket responsePacket = new DatagramPacket(
               response,
@@ -132,7 +131,7 @@ public class Server {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
-    System.out.println("%d @(%d, %d)\n", color, x, y);
+    System.out.printf("%d @(%d, %d)\n", color, x, y);
 
     synchronized (list) {
       for (int i = 0; i < list.size(); i++) {
