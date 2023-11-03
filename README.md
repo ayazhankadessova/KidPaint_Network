@@ -45,7 +45,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] Create Frame to ask for username
 [ ] modify Frame to ask for Username
 [ ] Send bucket data
-[ ] Get original drawing
+[ ] Get original drawing -> KEEP ARRAY OF DATA and send to server
 [ ] Keep mointoring UDP
 
 1. How to find a server?
