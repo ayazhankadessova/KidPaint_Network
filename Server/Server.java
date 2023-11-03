@@ -14,15 +14,51 @@ import java.util.ArrayList;
 public class Server {
 
   ServerSocket serverSocket;
+  DatagramSocket udpSocket;
 
   // list of clients
   ArrayList<Socket> list = new ArrayList<>();
 
   public Server() throws IOException {
-    int port = 12345;
-    serverSocket = new ServerSocket(port);
+    int tcpPort = 12345;
+    int udpPort = 5555; // choose a port for UDP
 
-    System.out.println("Listening at port : " + port);
+    serverSocket = new ServerSocket(tcpPort);
+    udpSocket = new DatagramSocket(udpPort);
+
+    System.out.println("Listening at port : " + tcpPort);
+
+    // Start a thread to listen for UDP packets
+    new Thread(() -> {
+      byte[] buffer = new byte[1024];
+      DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+      while (true) {
+        try {
+          udpSocket.receive(packet);
+          String message = new String(packet.getData(), 0, packet.getLength());
+          if (message.equals("Is anyone here?")) {
+            byte[] response =
+              (
+                "Server is here at " +
+                InetAddress.getLocalHost().getHostAddress() +
+                ":" +
+                tcpPort
+              ).getBytes();
+            DatagramPacket responsePacket = new DatagramPacket(
+              response,
+              response.length,
+              packet.getAddress(),
+              packet.getPort()
+            );
+            udpSocket.send(responsePacket);
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    })
+      .start();
+
     while (true) {
       Socket clientSocket = serverSocket.accept();
 
@@ -96,8 +132,7 @@ public class Server {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
-    System.out.println("color: " + color + " x: " + x + " y: " + y);
-    // TODO: finish from screenshot
+    System.out.println("%d @(%d, %d)\n", color, x, y);
 
     synchronized (list) {
       for (int i = 0; i < list.size(); i++) {
@@ -108,9 +143,6 @@ public class Server {
         out.writeInt(x);
         out.writeInt(y);
         out.flush();
-        // catch (IOException ex) {
-        //   System.out.println("Client already disconnected");
-        // }
       }
     }
   }
