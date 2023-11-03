@@ -1,8 +1,12 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 // 1. ForwardDrawingMessage
@@ -56,7 +60,7 @@ public class Server {
         case 1:
           // TODO: forwardDrawingMessage
           // drawing message
-          //   forwardDrawingMessage(in);
+          forwardDrawingMessage(in);
           break;
         default:
         // others
