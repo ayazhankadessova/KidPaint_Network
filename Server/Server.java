@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.List;
 
 // 1. ForwardDrawingMessage
 
@@ -18,6 +19,9 @@ public class Server {
 
   // list of clients
   ArrayList<Socket> list = new ArrayList<>();
+
+  // list of sketch data
+  List<Integer> sketchData = new ArrayList<>();
 
   public Server() throws IOException {
     int tcpPort = 12345;
@@ -65,6 +69,9 @@ public class Server {
           list.add(clientSocket);
         }
         try {
+          if (!sketchData.isEmpty()) {
+            sendSketchData(clientSocket);
+          }
           serve(clientSocket);
         } catch (IOException ex) {}
         synchronized (list) {
@@ -73,6 +80,29 @@ public class Server {
       });
       t.start();
     }
+  }
+
+  private void sendSketchData(Socket clientSocket) throws IOException {
+    System.out.println(
+      "Sending sketch data to " + clientSocket.getInetAddress()
+    );
+    DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+    int numberOfMessages = sketchData.size() / 3;
+    out.writeInt(numberOfMessages);
+    for (int i = 0; i < numberOfMessages; i++) {
+      out.writeInt(1); // message type for drawing message
+
+      int color = sketchData.get(i * 3);
+      int x = sketchData.get(i * 3 + 1);
+      int y = sketchData.get(i * 3 + 2);
+
+      out.writeInt(color); // color
+      out.writeInt(x); // x
+      out.writeInt(y); // y
+
+      System.out.printf("SENDINNNNGGG %d @(%d, %d)\n", color, x, y);
+    }
+    out.flush();
   }
 
   private void serve(Socket clientSocket) throws IOException {
@@ -131,6 +161,11 @@ public class Server {
     int x = in.readInt();
     int y = in.readInt();
     System.out.printf("%d @(%d, %d)\n", color, x, y);
+
+    // Store the sketch data
+    sketchData.add(color);
+    sketchData.add(x);
+    sketchData.add(y);
 
     synchronized (list) {
       for (int i = 0; i < list.size(); i++) {

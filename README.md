@@ -42,13 +42,16 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] ask username
 [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
 [ ] SHould users see old messages?
-[ ] check username in Server
-[ ] in chat, display who is sending
+[ ] is it ok if users change the udp port ?
+[ ] Does not show what 1st connected is painting
+
+<!-- [ ] check username in Server -->
+
 [x] Create Frame to ask for username
-[ ] modify Frame to ask for Username
 [ ] Send bucket data
 [ ] Get original drawing -> KEEP ARRAY OF DATA and send to server
 [ ] Keep mointoring UDP
+[ ] Fix UI
 
 1. How to find a server?
 
@@ -64,3 +67,21 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 ## DO not
 
 1. Dont implement undo (override, etc)
+
+## Things implemented:
+
+1. Once the client receives a reply from the server, the client establishes a TCP connection to the server and downloads the sketch data. The sketch will then be rendered in the sketchpad of the client.
+
+- Server side:
+
+added a List<Integer> sketchData to store the sketch data.
+
+In the forwardDrawingMessage method, added code to store the color, x, and y values in sketchData.
+
+added a sendSketchData method that sends the sketch data to a client when it connects (If there is something). This method is called in the thread that handles each client connection.
+
+11. The message with the sender’s name will be displayed in the chat area immediately.
+
+- CLient side:
+
+Store username and add it when sending the text message.
