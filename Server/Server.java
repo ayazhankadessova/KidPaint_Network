@@ -37,20 +37,19 @@ public class Server {
         try {
           udpSocket.receive(packet);
           String message = new String(packet.getData(), 0, packet.getLength());
-          if (1 == 1) {
-            System.out.println("Someone is asking my IP address");
-            byte[] response =
-              (
-                InetAddress.getLocalHost().getHostAddress() + ":" + tcpPort
-              ).getBytes();
-            DatagramPacket responsePacket = new DatagramPacket(
-              response,
-              response.length,
-              packet.getAddress(),
-              packet.getPort()
-            );
-            udpSocket.send(responsePacket);
-          }
+          System.out.println("Receive message: " + message);
+          System.out.println("Someone is asking my IP address");
+          byte[] response =
+            (
+              InetAddress.getLocalHost().getHostAddress() + ":" + tcpPort
+            ).getBytes();
+          DatagramPacket responsePacket = new DatagramPacket(
+            response,
+            response.length,
+            packet.getAddress(),
+            packet.getPort()
+          );
+          udpSocket.send(responsePacket);
         } catch (IOException e) {
           e.printStackTrace();
         }

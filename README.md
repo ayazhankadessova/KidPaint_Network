@@ -39,7 +39,9 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 ## TODO:
 
 [x] Create draft connection
-[ ] ask username
+[x] ask username
+[x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
+[ ] SHould users see old messages?
 [ ] check username in Server
 [ ] in chat, display who is sending
 [x] Create Frame to ask for username

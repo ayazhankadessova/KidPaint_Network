@@ -54,13 +54,14 @@ public class UI extends JFrame {
   private JToggleButton tglBucket;
   private static JLabel password1, label;
   private static JTextField username;
+  private String user;
   private static JButton button;
   private static JPasswordField Password;
 
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12346);
+  DatagramSocket udpSocket = new DatagramSocket(12348);
   // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
@@ -179,13 +180,11 @@ public class UI extends JFrame {
     loginPanel.setLayout(new GridLayout(3, 2));
 
     username = new JTextField();
-    Password = new JPasswordField();
     button = new JButton("Login");
 
     loginPanel.add(new JLabel("Username: "));
     loginPanel.add(username);
-    loginPanel.add(new JLabel("Password: "));
-    loginPanel.add(Password);
+
     loginPanel.add(button);
 
     // Add action listener to the login button
@@ -193,17 +192,16 @@ public class UI extends JFrame {
       new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          String user = username.getText();
-          String pass = new String(Password.getPassword());
-
-          // Check the username and password. This is just an example, you should do this securely.
-          if (1 == 1) {
+          user = username.getText();
+          // Check the username and password.
+          if (user.length() >= 3 && user.length() <= 10) {
             // If login is successful, remove the login panel and add the drawing panel.
             getContentPane().remove(loginPanel);
 
             // send username
 
             try {
+              System.out.println("Sending username");
               broadcastMessage(user);
             } catch (IOException e1) {
               // TODO Auto-generated catch block
@@ -218,7 +216,7 @@ public class UI extends JFrame {
             // If login fails, show an error message.
             JOptionPane.showMessageDialog(
               UI.this,
-              "Invalid username or password.",
+              "Invalid username. Username must be between 3 and 10 characters",
               "Login Failed",
               JOptionPane.ERROR_MESSAGE
             );
@@ -425,7 +423,8 @@ public class UI extends JFrame {
         @Override
         public void keyReleased(KeyEvent e) {
           if (e.getKeyCode() == 10) { // if the user press ENTER
-            onTextInputted(msgField.getText());
+            String fullMsg = user + ": " + msgField.getText();
+            onTextInputted(fullMsg);
             msgField.setText("");
           }
         }
