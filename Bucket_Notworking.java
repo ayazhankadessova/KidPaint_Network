@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+// import java.awt.event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,9 +18,13 @@ import java.awt.event.MouseMotionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,6 +41,7 @@ enum PaintMode {
 
 public class UI extends JFrame {
 
+  // DatagramSocket udpSocket;
   Socket socket;
   DataInputStream in;
   DataOutputStream out;
@@ -45,9 +52,16 @@ public class UI extends JFrame {
   private JPanel paintPanel;
   private JToggleButton tglPen;
   private JToggleButton tglBucket;
+  private static JLabel password1, label;
+  // private static JTextField username;
+  private String user;
+  // private static JButton button;
 
   private static UI instance;
-  private int selectedColor = -543230; //golden
+  private int selectedColor = -543230; // golden
+
+  DatagramSocket udpSocket = new DatagramSocket(12348);
+  // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -55,6 +69,7 @@ public class UI extends JFrame {
 
   /**
    * get the instance of UI. Singleton design pattern.
+   *
    * @return
    */
   public static UI getInstance() throws IOException {
@@ -63,36 +78,36 @@ public class UI extends JFrame {
     return instance;
   }
 
-  public void receive(DataInputStream in) {
-    // byte[] buffer = new byte[1024];
-    // TODo: receive data from server
-    // Add thread
-    // CHECK THIS from screenshot
-
+  private void receive(DataInputStream in) throws IOException {
     try {
       while (true) {
         int type = in.readInt();
 
         switch (type) {
           case 0:
-            // text message
+            //receive text
             receiveTextMessage(in);
             break;
           case 1:
-            // drawing message
+            //receive pixel message
             receivePixelMessage(in);
             break;
+          case 2:
+            //receive sketch data
+            // receiveSketchData(in);
+            receiveBucketMessage(in);
+            break;
           default:
-          // others
         }
       }
-    } catch (IOException e) {
-      e.printStackTrace(); // for debugging only. remove it then
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
   }
 
   private void receiveTextMessage(DataInputStream in) throws IOException {
     byte[] buffer = new byte[1024];
+
     int len = in.readInt();
     in.read(buffer, 0, len);
 
@@ -104,22 +119,56 @@ public class UI extends JFrame {
     });
   }
 
-  // Receive the Pixel Message
   private void receivePixelMessage(DataInputStream in) throws IOException {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
-
     paintPixel(color, x, y);
+    //TODO: Update the screen
   }
 
-  // TODO: GUIEchoClient -> Thread
+  private void receiveBucketMessage(DataInputStream in) throws IOException {
+    int size = in.readInt();
+    int color = in.readInt();
 
-  /**
-   * private constructor. To create an instance of UI, call UI.getInstance() instead.
-   */
-  private UI() throws IOException {
-    socket = new Socket("127.0.0.1", 12345);
+    for (int i = 0; i < size; i++) {
+      int x = in.readInt();
+      int y = in.readInt();
+      paintPixel(color, x, y);
+    }
+    // int x = in.readInt();
+    // int y = in.readInt();
+    // paintArea(color, x, y);
+    //TODO: Update the screen
+  }
+
+  private void broadcastMessage(String message) throws IOException {
+    // Broadcast the provided message
+    byte[] request = message.getBytes();
+    DatagramPacket requestPacket = new DatagramPacket(
+      request,
+      request.length,
+      InetAddress.getByName("255.255.255.255"),
+      5555
+    );
+    udpSocket.send(requestPacket);
+
+    byte[] buffer = new byte[1024];
+    DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length);
+    udpSocket.receive(responsePacket);
+    String serverInfo = new String(
+      responsePacket.getData(),
+      0,
+      responsePacket.getLength()
+    );
+    String[] parts = serverInfo.split(":");
+    System.out.println("Server's IP address: " + parts[0]);
+    String serverIP = parts[0];
+    int serverPort = Integer.parseInt(parts[1]);
+
+    // Establish TCP connection to the server
+    Socket socket = new Socket(serverIP, serverPort);
+
     in = new DataInputStream(socket.getInputStream());
     out = new DataOutputStream(socket.getOutputStream());
 
@@ -127,15 +176,90 @@ public class UI extends JFrame {
       try {
         receive(in);
       } catch (IOException e) {
+        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     });
 
     t.start();
+  }
+
+  /**
+   * private constructor. To create an instance of UI, call UI.getInstance()
+   * instead.
+   */
+  private UI() throws IOException {
     setTitle("KidPaint");
 
+    // Create login panel
+    // JPanel loginPanel = new JPanel();
     JPanel basePanel = new JPanel();
-    getContentPane().add(basePanel, BorderLayout.CENTER);
+    JPanel msgPanel = new JPanel();
+
+    JPanel loginPanel = new JPanel();
+    loginPanel.setLayout(new GridBagLayout());
+    GridBagConstraints constraints = new GridBagConstraints();
+
+    JLabel usernameLabel = new JLabel("Username: ");
+    JTextField username = new JTextField(20);
+
+    constraints.gridx = 0;
+    constraints.gridy = 0;
+    loginPanel.add(usernameLabel, constraints);
+
+    constraints.gridx = 1;
+    constraints.gridy = 0;
+    loginPanel.add(username, constraints);
+
+    JButton button = new JButton("Login");
+
+    constraints.gridx = 0;
+    constraints.gridy = 1;
+    constraints.gridwidth = 2;
+    loginPanel.add(button, constraints);
+
+    // Add action listener to the login button
+    button.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          user = username.getText();
+          // Check the username and password.
+          if (user.length() >= 3 && user.length() <= 10) {
+            // If login is successful, remove the login panel and add the drawing panel.
+            getContentPane().remove(loginPanel);
+
+            // send username
+
+            try {
+              System.out.println("Sending username");
+              broadcastMessage(user);
+            } catch (IOException e1) {
+              e1.printStackTrace();
+            }
+
+            getContentPane().add(basePanel, BorderLayout.CENTER);
+            getContentPane().add(msgPanel, BorderLayout.EAST);
+            validate();
+            repaint();
+          } else {
+            // If login fails, show an error message.
+            JOptionPane.showMessageDialog(
+              UI.this,
+              "Invalid username. Username must be between 3 and 10 characters",
+              "Login Failed",
+              JOptionPane.ERROR_MESSAGE
+            );
+          }
+        }
+      }
+    );
+
+    // // Add the login panel to the frame
+    getContentPane().add(loginPanel, BorderLayout.CENTER);
+
+    // JPanel basePanel = new JPanel();
+    // getContentPane().add(basePanel, BorderLayout.CENTER);
     basePanel.setLayout(new BorderLayout(0, 0));
 
     paintPanel =
@@ -204,6 +328,19 @@ public class UI extends JFrame {
           if (
             paintMode == PaintMode.Area && e.getX() >= 0 && e.getY() >= 0
           ) paintArea(e.getX() / blockSize, e.getY() / blockSize);
+          // if (
+          //   paintMode == PaintMode.Area && e.getX() >= 0 && e.getY() >= 0
+          // ) try {
+          //   // send data to the server instead of updating the screen
+          //   out.writeInt(2);
+          //   out.writeInt(selectedColor);
+          //   out.writeInt(e.getX() / blockSize);
+          //   out.writeInt(e.getY() / blockSize);
+          //   out.flush();
+          // } catch (IOException ex) {
+          //   ex.printStackTrace(); // for debugging, remove it in production stage
+          // }
+          // paintArea(e.getX() / blockSize, e.getY() / blockSize);
         }
       }
     );
@@ -212,16 +349,17 @@ public class UI extends JFrame {
       new MouseMotionListener() {
         @Override
         public void mouseDragged(MouseEvent e) {
-          if (paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0) {
-            try {
-              out.writeInt(1);
-              out.writeInt(selectedColor);
-              out.writeInt(e.getX() / blockSize);
-              out.writeInt(e.getY() / blockSize);
-              out.flush();
-            } catch (IOException ex) {
-              ex.printStackTrace();
-            }
+          if (
+            paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
+          ) try { //					paintPixel(e.getX() / blockSize, e.getY() / blockSize);
+            // send data to the server instead of updating the screen
+            out.writeInt(1);
+            out.writeInt(selectedColor);
+            out.writeInt(e.getX() / blockSize);
+            out.writeInt(e.getY() / blockSize);
+            out.flush();
+          } catch (IOException ex) {
+            ex.printStackTrace(); // for debugging, remove it in production stage
           }
         }
 
@@ -310,10 +448,6 @@ public class UI extends JFrame {
       }
     );
 
-    JPanel msgPanel = new JPanel();
-
-    getContentPane().add(msgPanel, BorderLayout.EAST);
-
     msgPanel.setLayout(new BorderLayout(0, 0));
 
     msgField = new JTextField(); // text field for inputting message
@@ -321,7 +455,6 @@ public class UI extends JFrame {
     msgPanel.add(msgField, BorderLayout.SOUTH);
 
     // handle key-input event of the message field
-    // addKeyListener -> textfield allows to interact w/ a user
     msgField.addKeyListener(
       new KeyListener() {
         @Override
@@ -333,7 +466,8 @@ public class UI extends JFrame {
         @Override
         public void keyReleased(KeyEvent e) {
           if (e.getKeyCode() == 10) { // if the user press ENTER
-            onTextInputted(msgField.getText());
+            String fullMsg = user + ": " + msgField.getText();
+            onTextInputted(fullMsg);
             msgField.setText("");
           }
         }
@@ -357,7 +491,9 @@ public class UI extends JFrame {
   }
 
   /**
-   * it will be invoked if the user selected the specific color through the color picker
+   * it will be invoked if the user selected the specific color through the color
+   * picker
+   *
    * @param colorValue - the selected color
    */
   public void selectColor(int colorValue) {
@@ -369,24 +505,24 @@ public class UI extends JFrame {
 
   /**
    * it will be invoked if the user inputted text in the message field
+   *
    * @param text - user inputted text
-   * // TODO: send to server
    */
-  private void onTextInputted(String text) throws IOException {
+  private void onTextInputted(String text) {
     // chatArea.setText(chatArea.getText() + text + "\n");
-    // sys.out for testing
+    try {
+      out.writeInt(0); // 0 means this is a chat message
 
-    out.writeInt(0); // 0 represents the message type - chat msg
-    System.out.println(0);
-    out.writeInt(text.length());
-    System.out.println(text.length());
-    out.write(text.getBytes());
-    System.out.println(text.getBytes());
-    out.flush();
+      out.writeInt(text.length());
+      out.write(text.getBytes());
+      out.flush();
+      System.out.println(0);
+    } catch (IOException e) {}
   }
 
   /**
    * change the color of a specific pixel
+   *
    * @param col, row - the position of the selected pixel
    */
   public void paintPixel(int col, int row) {
@@ -396,10 +532,6 @@ public class UI extends JFrame {
     paintPanel.repaint(col * blockSize, row * blockSize, blockSize, blockSize);
   }
 
-  /**
-   * change the color of a specific pixel
-   * @param col, row - the position of the selected pixel
-   */
   public void paintPixel(int color, int col, int row) {
     if (col >= data.length || row >= data[0].length) return;
 
@@ -409,9 +541,52 @@ public class UI extends JFrame {
 
   /**
    * change the color of a specific area
+   *
    * @param col, row - the position of the selected pixel
    * @return a list of modified pixels
    */
+  // get size and return
+  public List paintArea(int selectedColor, int col, int row) {
+    LinkedList<Point> filledPixels = new LinkedList<Point>();
+
+    if (col >= data.length || row >= data[0].length) return filledPixels;
+
+    int oriColor = data[col][row];
+    LinkedList<Point> buffer = new LinkedList<Point>();
+
+    if (oriColor != selectedColor) {
+      buffer.add(new Point(col, row));
+
+      while (!buffer.isEmpty()) {
+        Point p = buffer.removeFirst();
+        int x = p.x;
+        int y = p.y;
+
+        if (data[x][y] != oriColor) continue;
+
+        // data[x][y] = selectedColor;
+        filledPixels.add(p);
+
+        if (x > 0 && data[x - 1][y] == oriColor) buffer.add(
+          new Point(x - 1, y)
+        );
+        if (x < data.length - 1 && data[x + 1][y] == oriColor) buffer.add(
+          new Point(x + 1, y)
+        );
+        if (y > 0 && data[x][y - 1] == oriColor) buffer.add(
+          new Point(x, y - 1)
+        );
+        if (y < data[0].length - 1 && data[x][y + 1] == oriColor) buffer.add(
+          new Point(x, y + 1)
+        );
+      }
+
+      paintPanel.repaint();
+    }
+    return filledPixels;
+  }
+
+  // with color
   public List paintArea(int col, int row) {
     LinkedList<Point> filledPixels = new LinkedList<Point>();
 
@@ -430,7 +605,7 @@ public class UI extends JFrame {
 
         if (data[x][y] != oriColor) continue;
 
-        data[x][y] = selectedColor;
+        // data[x][y] = selectedColor;
         filledPixels.add(p);
 
         if (x > 0 && data[x - 1][y] == oriColor) buffer.add(
@@ -448,11 +623,32 @@ public class UI extends JFrame {
       }
       paintPanel.repaint();
     }
+
+    try {
+      out.writeInt(2);
+      out.writeInt(filledPixels.size());
+      out.writeInt(selectedColor);
+
+      // print what i sent
+
+      System.out.println("Sending " + filledPixels.size() + " pixels");
+      System.out.println("Sending color " + selectedColor);
+
+      for (Point p : filledPixels) {
+        out.writeInt(p.x);
+        out.writeInt(p.y);
+      }
+      out.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     return filledPixels;
   }
 
   /**
    * set pixel data and block size
+   *
    * @param data
    * @param blockSize
    */
