@@ -42,6 +42,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] ask username
 [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
 [ ] SHould users see old messages?
+[ ] Fix assigning username
 [ ] is it ok if users change the udp port ?
 [ ] Does not show what 1st connected is painting
 

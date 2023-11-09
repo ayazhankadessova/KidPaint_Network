@@ -53,10 +53,9 @@ public class UI extends JFrame {
   private JToggleButton tglPen;
   private JToggleButton tglBucket;
   private static JLabel password1, label;
-  private static JTextField username;
+  // private static JTextField username;
   private String user;
-  private static JButton button;
-  private static JPasswordField Password;
+  // private static JButton button;
 
   private static UI instance;
   private int selectedColor = -543230; // golden
@@ -173,19 +172,31 @@ public class UI extends JFrame {
     setTitle("KidPaint");
 
     // Create login panel
-    JPanel loginPanel = new JPanel();
+    // JPanel loginPanel = new JPanel();
     JPanel basePanel = new JPanel();
     JPanel msgPanel = new JPanel();
 
-    loginPanel.setLayout(new GridLayout(3, 2));
+    JPanel loginPanel = new JPanel();
+    loginPanel.setLayout(new GridBagLayout());
+    GridBagConstraints constraints = new GridBagConstraints();
 
-    username = new JTextField();
-    button = new JButton("Login");
+    JLabel usernameLabel = new JLabel("Username: ");
+    JTextField username = new JTextField(20);
 
-    loginPanel.add(new JLabel("Username: "));
-    loginPanel.add(username);
+    constraints.gridx = 0;
+    constraints.gridy = 0;
+    loginPanel.add(usernameLabel, constraints);
 
-    loginPanel.add(button);
+    constraints.gridx = 1;
+    constraints.gridy = 0;
+    loginPanel.add(username, constraints);
+
+    JButton button = new JButton("Login");
+
+    constraints.gridx = 0;
+    constraints.gridy = 1;
+    constraints.gridwidth = 2;
+    loginPanel.add(button, constraints);
 
     // Add action listener to the login button
     button.addActionListener(
