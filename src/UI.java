@@ -60,7 +60,7 @@ public class UI extends JFrame {
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12348);
+  DatagramSocket udpSocket = new DatagramSocket(12349);
   // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
