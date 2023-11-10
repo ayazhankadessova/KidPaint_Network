@@ -126,6 +126,9 @@ public class Server {
           // drawing message
           forwardDrawingMessage(in);
           break;
+        case 2:
+          forwardBucketMessage(in);
+          break;
         default:
         // others
 
@@ -152,6 +155,39 @@ public class Server {
         } catch (IOException ex) {
           System.out.println("Client already disconnected");
         }
+      }
+    }
+  }
+
+  private void forwardBucketMessage(DataInputStream in) throws IOException {
+    int numberOfPixels = in.readInt();
+    int color = in.readInt();
+
+    int[] xCoordinates = new int[numberOfPixels];
+    int[] yCoordinates = new int[numberOfPixels];
+
+    for (int i = 0; i < numberOfPixels; i++) {
+      int x = in.readInt();
+      int y = in.readInt();
+      xCoordinates[i] = x;
+      yCoordinates[i] = y;
+      // Store the sketch data
+      sketchData.add(color);
+      sketchData.add(x);
+      sketchData.add(y);
+      System.out.println("Received Bucket message: " + x + " " + y);
+    }
+    synchronized (list) {
+      for (Socket s : list) {
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+        out.writeInt(2);
+        out.writeInt(numberOfPixels);
+        out.writeInt(color);
+        for (int i = 0; i < numberOfPixels; i++) {
+          out.writeInt(xCoordinates[i]);
+          out.writeInt(yCoordinates[i]);
+        }
+        out.flush();
       }
     }
   }
