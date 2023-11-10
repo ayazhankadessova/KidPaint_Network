@@ -93,8 +93,7 @@ Store username and add it when sending the text message.
 sent bucket data,
 
 i need to receive it in server, 
-forward it and r
-eceive it in client - yes
+forward it and receive it in client - yes
 
 
 client side:

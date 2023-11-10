@@ -552,6 +552,7 @@ public class UI extends JFrame {
 
         // data[x][y] = selectedColor;
         filledPixels.add(p);
+        
 
         if (x > 0 && data[x - 1][y] == oriColor) buffer.add(
           new Point(x - 1, y)
