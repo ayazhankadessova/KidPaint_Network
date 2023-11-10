@@ -328,20 +328,6 @@ public class UI extends JFrame {
           if (
             paintMode == PaintMode.Area && e.getX() >= 0 && e.getY() >= 0
           ) paintArea(e.getX() / blockSize, e.getY() / blockSize);
-          // if (
-          //   paintMode == PaintMode.Area && e.getX() >= 0 && e.getY() >= 0
-          // ) try {
-          //   // send data to the server instead of updating the screen
-          //   out.writeInt(2);
-          //   out.writeInt(selectedColor);
-          //   out.writeInt(e.getX() / blockSize);
-          //   out.writeInt(e.getY() / blockSize);
-          //   out.flush();
-          // } catch (IOException ex) {
-          //   ex.printStackTrace(); // for debugging, remove it in production stage
-          // }
-          // paintArea(e.getX() / blockSize, e.getY() / blockSize);
-        }
       }
     );
 
@@ -588,6 +574,8 @@ public class UI extends JFrame {
 
   // with color
   public List paintArea(int col, int row) {
+    System.out.println("Painting area");
+
     LinkedList<Point> filledPixels = new LinkedList<Point>();
 
     if (col >= data.length || row >= data[0].length) return filledPixels;

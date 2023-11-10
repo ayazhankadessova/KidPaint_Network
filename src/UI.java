@@ -60,7 +60,7 @@ public class UI extends JFrame {
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12348);
+  DatagramSocket udpSocket = new DatagramSocket(12349);
   // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
@@ -92,6 +92,9 @@ public class UI extends JFrame {
             //receive pixel message
             receivePixelMessage(in);
             break;
+          case 2:
+            receiveBucketMessage(in);
+            break;
           default:
         }
       }
@@ -120,6 +123,17 @@ public class UI extends JFrame {
     int y = in.readInt();
     paintPixel(color, x, y);
     //TODO: Update the screen
+  }
+
+  private void receiveBucketMessage(DataInputStream in) throws IOException {
+    int size = in.readInt();
+    int color = in.readInt();
+
+    for (int i = 0; i < size; i++) {
+      int x = in.readInt();
+      int y = in.readInt();
+      paintPixel(color, x, y);
+    }
   }
 
   private void broadcastMessage(String message) throws IOException {
@@ -518,7 +532,12 @@ public class UI extends JFrame {
 
     if (col >= data.length || row >= data[0].length) return filledPixels;
 
-    int oriColor = data[col][row];
+    int[][] dataCopy = new int[data.length][];
+    for (int i = 0; i < data.length; i++) {
+      dataCopy[i] = data[i].clone();
+    }
+
+    int oriColor = dataCopy[col][row];
     LinkedList<Point> buffer = new LinkedList<Point>();
 
     if (oriColor != selectedColor) {
@@ -529,26 +548,45 @@ public class UI extends JFrame {
         int x = p.x;
         int y = p.y;
 
-        if (data[x][y] != oriColor) continue;
+        if (dataCopy[x][y] != oriColor) continue;
 
-        data[x][y] = selectedColor;
+        dataCopy[x][y] = selectedColor;
+
         filledPixels.add(p);
-
-        if (x > 0 && data[x - 1][y] == oriColor) buffer.add(
+        System.out.println("Painting " + p.x + ", " + p.y);
+        if (x > 0 && dataCopy[x - 1][y] == oriColor) buffer.add(
           new Point(x - 1, y)
         );
-        if (x < data.length - 1 && data[x + 1][y] == oriColor) buffer.add(
-          new Point(x + 1, y)
-        );
-        if (y > 0 && data[x][y - 1] == oriColor) buffer.add(
+        if (
+          x < dataCopy.length - 1 && dataCopy[x + 1][y] == oriColor
+        ) buffer.add(new Point(x + 1, y));
+        if (y > 0 && dataCopy[x][y - 1] == oriColor) buffer.add(
           new Point(x, y - 1)
         );
-        if (y < data[0].length - 1 && data[x][y + 1] == oriColor) buffer.add(
-          new Point(x, y + 1)
-        );
+        if (
+          y < dataCopy[0].length - 1 && dataCopy[x][y + 1] == oriColor
+        ) buffer.add(new Point(x, y + 1));
       }
-      paintPanel.repaint();
     }
+
+    // Send the list of painted pixels, their color, and type to the server
+    try {
+      System.out.println("Sending filled pixels");
+      out.writeInt(2); // Type
+      out.writeInt(filledPixels.size()); // Size of the list
+      out.writeInt(selectedColor); // Color
+
+      for (Point p : filledPixels) {
+        System.out.println("Sending " + p.x + ", " + p.y);
+        out.writeInt(p.x);
+        out.writeInt(p.y);
+      }
+      out.flush();
+      System.out.println("Sent filled pixels");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     return filledPixels;
   }
 
