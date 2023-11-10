@@ -87,3 +87,28 @@ added a sendSketchData method that sends the sketch data to a client when it con
 - CLient side:
 
 Store username and add it when sending the text message.
+
+
+
+sent bucket data,
+
+i need to receive it in server, 
+forward it and r
+eceive it in client - yes
+
+
+client side:
+
+- find a list of pixels that i have painted
+- loop thru the list and send out the size of the values
+- send color
+- send type
+
+Server:
+
+- Receive type
+- receive values  -> loop
+- receive color
+
+- go into another loop to get sockets and 
+
