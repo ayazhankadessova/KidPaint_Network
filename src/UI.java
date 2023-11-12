@@ -270,6 +270,7 @@ public class UI extends JFrame {
         public void paint(Graphics g) {
           super.paint(g);
 
+          // create g2 object - better + more functionality
           Graphics2D g2 = (Graphics2D) g; // Graphics2D provides the setRenderingHints method
 
           // enable anti-aliasing
@@ -287,6 +288,7 @@ public class UI extends JFrame {
           for (int x = 0; x < data.length; x++) {
             for (int y = 0; y < data[0].length; y++) {
               g2.setColor(new Color(data[x][y]));
+              // fill the circle
               g2.fillArc(
                 blockSize * x,
                 blockSize * y,
@@ -296,6 +298,7 @@ public class UI extends JFrame {
                 360
               );
               g2.setColor(Color.darkGray);
+              // draw the outline of the circle
               g2.drawArc(
                 blockSize * x,
                 blockSize * y,
@@ -439,9 +442,8 @@ public class UI extends JFrame {
       }
     );
 
-    /*new BufferedImage is created with the same dimensions as the component. 
-    The paint method is called with the Graphics2D object of the BufferedImage to draw the sketch onto the image. 
-    Then, the image is written to the selected file in PNG format using ImageIO.write.  */
+    // create a Buffered Image & use Graphics2D to draw on it
+    // save the image to a file
 
     saveButton.addActionListener(
       new ActionListener() {
@@ -455,8 +457,47 @@ public class UI extends JFrame {
               getHeight(),
               BufferedImage.TYPE_INT_RGB
             );
+
+            // create graphics so new tool understands
             Graphics2D g2 = image.createGraphics();
-            paint(g2);
+
+            // enable anti-aliasing
+            RenderingHints rh = new RenderingHints(
+              RenderingHints.KEY_ANTIALIASING,
+              RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setRenderingHints(rh);
+
+            // clear the image using black
+            g2.setColor(Color.black);
+            g2.fillRect(0, 0, image.getWidth(), image.getHeight());
+
+            // draw and fill circles with the specific colors stored in the data array
+            for (int x = 0; x < data.length; x++) {
+              for (int y = 0; y < data[0].length; y++) {
+                g2.setColor(new Color(data[x][y]));
+                // fill the circle
+                g2.fillArc(
+                  blockSize * x,
+                  blockSize * y,
+                  blockSize,
+                  blockSize,
+                  0,
+                  360
+                );
+                g2.setColor(Color.darkGray);
+                // draw the outline of the circle
+                g2.drawArc(
+                  blockSize * x,
+                  blockSize * y,
+                  blockSize,
+                  blockSize,
+                  0,
+                  360
+                );
+              }
+            }
+
             try {
               ImageIO.write(image, "png", file);
             } catch (IOException ex) {

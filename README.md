@@ -44,7 +44,9 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] Fix assigning username
 [x] BUcket Data
 [x] Save Data
-[ ] Only save the image part
+[x] Only save the image part
+[ ] Can we make the method reusable?
+[ ] How to save in PNG?
 [ ] is it ok if users change the udp port ?
 [ ] Does not show what 1st connected is painting
 
@@ -108,3 +110,7 @@ Server:
 - receive color
 
 - go into another loop to get sockets and
+
+## Tools:
+
+- Graphics2D
