@@ -41,9 +41,10 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] Create draft connection
 [x] ask username
 [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
-[ ] SHould users see old messages?
 [x] Fix assigning username
-[ ] BUcket Data
+[x] BUcket Data
+[x] Save Data
+[ ] Only save the image part
 [ ] is it ok if users change the udp port ?
 [ ] Does not show what 1st connected is painting
 
@@ -88,13 +89,10 @@ added a sendSketchData method that sends the sketch data to a client when it con
 
 Store username and add it when sending the text message.
 
-
-
 sent bucket data,
 
-i need to receive it in server, 
+i need to receive it in server,
 forward it and receive it in client - yes
-
 
 client side:
 
@@ -106,8 +104,7 @@ client side:
 Server:
 
 - Receive type
-- receive values  -> loop
+- receive values -> loop
 - receive color
 
-- go into another loop to get sockets and 
-
+- go into another loop to get sockets and

@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-// import java.awt.event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,16 +14,23 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+// import java.awt.event;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -406,6 +412,9 @@ public class UI extends JFrame {
     tglBucket = new JToggleButton("Bucket");
     toolPanel.add(tglBucket);
 
+    JButton saveButton = new JButton("Save Sketch");
+    toolPanel.add(saveButton);
+
     // change the paint mode to PIXEL mode
     tglPen.addActionListener(
       new ActionListener() {
@@ -426,6 +435,35 @@ public class UI extends JFrame {
           tglPen.setSelected(false);
           tglBucket.setSelected(true);
           paintMode = PaintMode.Area;
+        }
+      }
+    );
+
+    /*new BufferedImage is created with the same dimensions as the component. 
+    The paint method is called with the Graphics2D object of the BufferedImage to draw the sketch onto the image. 
+    Then, the image is written to the selected file in PNG format using ImageIO.write.  */
+
+    saveButton.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          JFileChooser fileChooser = new JFileChooser();
+          if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            BufferedImage image = new BufferedImage(
+              getWidth(),
+              getHeight(),
+              BufferedImage.TYPE_INT_RGB
+            );
+            Graphics2D g2 = image.createGraphics();
+            paint(g2);
+            try {
+              ImageIO.write(image, "png", file);
+            } catch (IOException ex) {
+              ex.printStackTrace();
+            }
+            g2.dispose();
+          }
         }
       }
     );
