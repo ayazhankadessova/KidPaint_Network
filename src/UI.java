@@ -418,6 +418,9 @@ public class UI extends JFrame {
     JButton saveButton = new JButton("Save Sketch");
     toolPanel.add(saveButton);
 
+    // JButton LoadButton = new JButton("Load Sketch");
+    // toolPanel.add(LoadButton);
+
     // change the paint mode to PIXEL mode
     tglPen.addActionListener(
       new ActionListener() {
@@ -511,6 +514,45 @@ public class UI extends JFrame {
         }
       }
     );
+
+    // LoadButton.addActionListener(
+    //   new ActionListener() {
+    //     public void actionPerformed(ActionEvent ae) {
+    //       JFileChooser fileChooser = new JFileChooser();
+    //       int returnValue = fileChooser.showOpenDialog(null);
+    //       if (returnValue == JFileChooser.APPROVE_OPTION) {
+    //         File selectedFile = fileChooser.getSelectedFile();
+    //         try {
+    //           BufferedImage base = ImageIO.read(selectedFile);
+
+    //           out.writeInt(3);
+
+    //           // Send number of pixels in the image
+    //           out.writeInt(base.getWidth());
+    //           out.writeInt(base.getHeight());
+
+    //           // Iterate over the pixels of the image
+    //           for (int x = 0; x < base.getWidth(); x++) {
+    //             for (int y = 0; y < base.getHeight(); y++) {
+    //               // Get the RGB value of the pixel
+    //               int color = base.getRGB(x, y);
+
+    //               // Send the color and coordinates to the server
+    //               out.writeInt(color); // color
+    //               out.writeInt(x); // x
+    //               out.writeInt(y); // y
+    //             }
+    //           }
+
+    //           out.flush();
+    //           socket.close();
+    //         } catch (IOException e) {
+    //           e.printStackTrace();
+    //         }
+    //       }
+    //     }
+    //   }
+    // );
 
     msgPanel.setLayout(new BorderLayout(0, 0));
 
