@@ -452,6 +452,9 @@ public class UI extends JFrame {
           JFileChooser fileChooser = new JFileChooser();
           if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
+
+            System.out.println("Saving to file: " + file.getAbsolutePath()); // print the file path
+
             BufferedImage image = new BufferedImage(
               getWidth(),
               getHeight(),
