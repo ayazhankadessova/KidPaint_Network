@@ -60,6 +60,10 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [ ] Keep mointoring UDP
 [ ] Fix UI
 
+## Issues:
+
+Saves only 40x30, not 50x50
+
 1. How to find a server?
 
 - Use UDP to find where the server is

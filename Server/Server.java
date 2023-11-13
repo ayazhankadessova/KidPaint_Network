@@ -129,8 +129,8 @@ public class Server {
         case 2:
           forwardBucketMessage(in);
           break;
-        // case 3:
-        //   forwardSketchData(in);
+        case 3:
+          forwardSketchData(in);
         default:
         // others
 
@@ -194,59 +194,52 @@ public class Server {
     }
   }
 
-  // private void forwardSketchData(DataInputStream in) throws IOException {
-  //   int numberOfX = in.readInt();
-  //   int numberOfY = in.readInt();
-  //   // int color = in.readInt();
+  private void forwardSketchData(DataInputStream in) throws IOException {
+    System.out.println("Forwarding sketch data");
+    sketchData.clear();
+    int numberOfX = in.readInt();
+    int numberOfY = in.readInt();
+    int numberOfPixels = numberOfX * numberOfY;
+    // int color = in.readInt();
 
-  //   int[] xCoordinates = new int[numberOfX];
-  //   int[] yCoordinates = new int[numberOfY];
+    // int[] xCoordinates = new int[numberOfX];
+    // int[] yCoordinates = new int[numberOfY];
 
-  //   // Iterate over the pixels of the image
-  //   for (int x = 0; x < numberOfX; x++) {
-  //     for (int y = 0; y < numberOfY; y++) {
-  //       // // Get the RGB value of the pixel
-  //       // int color = base.getRGB(x, y);
+    for (int i = 0; i < numberOfPixels; i++) {
+      int color = in.readInt();
+      int x = in.readInt();
+      int y = in.readInt();
+      // xCoordinates[i] = x;
+      // yCoordinates[i] = y;
+      // Store the sketch data
+      sketchData.add(color);
+      sketchData.add(x);
+      sketchData.add(y);
+      System.out.println("Received Sketch message: " + color + x + " " + y);
+    }
+    synchronized (list) {
+      for (Socket s : list) {
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-  //       int color = in.readInt();
-  //       int x = in.readInt();
-  //       int y = in.readInt();
+        int numberOfMessages = sketchData.size() / 3;
+        // out.writeInt(numberOfMessages);
+        for (int i = 0; i < numberOfPixels; i++) {
+          out.writeInt(1); // message type for drawing message
 
-  //       xCoordinates[i] = x;
-  //       yCoordinates[i] = y;
+          int color = sketchData.get(i * 3);
+          int x = sketchData.get(i * 3 + 1);
+          int y = sketchData.get(i * 3 + 2);
 
-  //       // Send the color and coordinates to the server
-  //       out.writeInt(color); // color
-  //       out.writeInt(x); // x
-  //       out.writeInt(y); // y
-  //     }
-  //   }
+          out.writeInt(color); // color
+          out.writeInt(x); // x
+          out.writeInt(y); // y
 
-  //   for (int i = 0; i < numberOfPixels; i++) {
-  //     int x = in.readInt();
-  //     int y = in.readInt();
-  //     xCoordinates[i] = x;
-  //     yCoordinates[i] = y;
-  //     // Store the sketch data
-  //     sketchData.add(color);
-  //     sketchData.add(x);
-  //     sketchData.add(y);
-  //     System.out.println("Received Bucket message: " + x + " " + y);
-  //   }
-  //   synchronized (list) {
-  //     for (Socket s : list) {
-  //       DataOutputStream out = new DataOutputStream(s.getOutputStream());
-  //       out.writeInt(3);
-  //       out.writeInt(numberOfPixels);
-  //       out.writeInt(color);
-  //       for (int i = 0; i < numberOfPixels; i++) {
-  //         out.writeInt(xCoordinates[i]);
-  //         out.writeInt(yCoordinates[i]);
-  //       }
-  //       out.flush();
-  //     }
-  //   }
-  // }
+          System.out.printf("SENDINNNNGGG %d @(%d, %d)\n", color, x, y);
+        }
+        out.flush();
+      }
+    }
+  }
 
   private void forwardDrawingMessage(DataInputStream in) throws IOException {
     int color = in.readInt();

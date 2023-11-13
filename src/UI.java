@@ -525,41 +525,40 @@ public class UI extends JFrame {
             try {
               BufferedImage base = ImageIO.read(selectedFile);
 
-              // out.writeInt(3);
-
-              // Send number of pixels in the image
-              // out.writeInt(base.getWidth());
-              // out.writeInt(base.getHeight());
-              System.out.println(
-                "Sending " + base.getWidth() + " " + base.getHeight()
-              );
-              // int x = 1;
-              // int y = 1;
-
-              // int color = base.getRGB(x, y);
-              // int color = base.getRGB(x, y);
-              // int color = Color.red.getRGB();
-              // out.writeInt(color);
-              // out.writeInt(x); // x
-              // out.writeInt(y); // y
+              out.writeInt(3);
+              out.writeInt(base.getWidth() / blockSize);
+              out.writeInt(base.getHeight() / blockSize);
 
               // Iterate over the pixels of the image
-              for (int x = 0; x < base.getWidth(); x++) {
-                for (int y = 0; y < base.getHeight(); y++) {
-                  // Get the RGB value of the pixel
-                  int color = base.getRGB(x, y);
+              for (int x = 0; x < base.getWidth(); x += blockSize) {
+                for (int y = 0; y < base.getHeight(); y += blockSize) {
+                  // Get the RGB value of the center pixel of the block
+                  int centerX = x + blockSize / 2;
+                  int centerY = y + blockSize / 2;
+                  if (centerX < base.getWidth() && centerY < base.getHeight()) {
+                    int color = base.getRGB(centerX, centerY);
 
-                  // // Send the color and coordinates to the server
-                  // out.writeInt(color); // color
-                  // out.writeInt(x); // x
-                  // out.writeInt(y); // y
+                    // Send the color and coordinates to the server
+                    out.writeInt(color); // color
+                    out.writeInt(x / blockSize); // x
+                    out.writeInt(y / blockSize); // y
 
-                  System.out.println("Sending " + color + " " + x + " " + y);
+                    // Print the color and coordinates
+                    System.out.println(
+                      "Sending " +
+                      color +
+                      " " +
+                      x /
+                      blockSize +
+                      " " +
+                      y /
+                      blockSize
+                    );
+                  }
                 }
               }
 
               out.flush();
-              // socket.close();
             } catch (IOException e) {
               e.printStackTrace();
             }
