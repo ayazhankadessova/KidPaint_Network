@@ -46,7 +46,8 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] Save Data
 [x] Only save the image part
 
-[ ] Load : Get all the pixels, colors etc and send
+[x] Load : Get all the pixels, colors etc and send
+[ ] send load to all ppl
 [ ] Can we make the method reusable?
 [ ] How to save in PNG?
 [ ] is it ok if users change the udp port ?
@@ -62,7 +63,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 ## Issues:
 
-Saves only 40x30, not 50x50
+1. Load: Saves only 40x30, not 50x50
 
 1. How to find a server?
 
