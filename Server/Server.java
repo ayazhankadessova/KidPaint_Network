@@ -200,18 +200,12 @@ public class Server {
     int numberOfX = in.readInt();
     int numberOfY = in.readInt();
     int numberOfPixels = numberOfX * numberOfY;
-    // int color = in.readInt();
-
-    // int[] xCoordinates = new int[numberOfX];
-    // int[] yCoordinates = new int[numberOfY];
 
     for (int i = 0; i < numberOfPixels; i++) {
       int color = in.readInt();
       int x = in.readInt();
       int y = in.readInt();
-      // xCoordinates[i] = x;
-      // yCoordinates[i] = y;
-      // Store the sketch data
+
       sketchData.add(color);
       sketchData.add(x);
       sketchData.add(y);
@@ -222,7 +216,6 @@ public class Server {
         DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
         int numberOfMessages = sketchData.size() / 3;
-        // out.writeInt(numberOfMessages);
         for (int i = 0; i < numberOfPixels; i++) {
           out.writeInt(1); // message type for drawing message
 
@@ -234,7 +227,7 @@ public class Server {
           out.writeInt(x); // x
           out.writeInt(y); // y
 
-          System.out.printf("SENDINNNNGGG %d @(%d, %d)\n", color, x, y);
+          System.out.printf("Sending Sketch data: %d @(%d, %d)\n", color, x, y);
         }
         out.flush();
       }

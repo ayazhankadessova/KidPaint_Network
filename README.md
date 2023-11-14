@@ -33,8 +33,10 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 - 0 - chat message
 - 1 - drawing message
+- 2 - bucket
+- 3 - sketch data
 
-2. FOward drawing message with type and length that we read from buffer
+2. Foward drawing message with type and length that we read from buffer
 
 ## TODO:
 
@@ -47,7 +49,9 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] Only save the image part
 
 [x] Load : Get all the pixels, colors etc and send
-[ ] send load to all ppl
+[x] send load to all ppl
+
+[ ] Make methods more efficient -> less arrays, faster
 [ ] Can we make the method reusable?
 [ ] How to save in PNG?
 [ ] is it ok if users change the udp port ?
@@ -56,14 +60,14 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 <!-- [ ] check username in Server -->
 
 [x] Create Frame to ask for username
-[ ] Send bucket data
-[ ] Get original drawing -> KEEP ARRAY OF DATA and send to server
+[x] Send bucket data
+[x] Get original drawing -> KEEP ARRAY OF DATA and send to server
 [ ] Keep mointoring UDP
 [ ] Fix UI
 
 ## Issues:
 
-1. Load: Saves only 40x30, not 50x50
+1. [x] Load: Saves only 40x30, not 50x50
 
 1. How to find a server?
 

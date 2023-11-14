@@ -459,8 +459,8 @@ public class UI extends JFrame {
             System.out.println("Saving to file: " + file.getAbsolutePath()); // print the file path
 
             BufferedImage image = new BufferedImage(
-              getWidth(),
-              getHeight(),
+              data.length * blockSize,
+              data[0].length * blockSize,
               BufferedImage.TYPE_INT_RGB
             );
 
