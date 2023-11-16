@@ -50,27 +50,23 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 [x] Load : Get all the pixels, colors etc and send
 [x] send load to all ppl
-
-[ ] Make methods more efficient -> less arrays, faster
-[ ] Can we make the method reusable?
-[ ] How to save in PNG?
-[ ] is it ok if users change the udp port ?
-[ ] Does not show what 1st connected is painting
-
-<!-- [ ] check username in Server -->
-
 [x] Create Frame to ask for username
 [x] Send bucket data
 [x] Get original drawing -> KEEP ARRAY OF DATA and send to server
-[ ] Keep mointoring UDP
+
+[ ] Make methods more efficient -> less arrays, faster
+[ ] Can we make the method reusable?
+[ ] How to save in PNG? (currently saving w/o formal)
+[ ] Add Button for choosing the studio
 [ ] Fix UI
+[ ] Display Studio name on top
 
 ## Issues:
 
 1. [x] Load: Saves only 40x30, not 50x50
 2. [ ] Bucket coloring too much
 3. [ ] send sketch data out of bounds
-4. disconnect
+4. [x] disconnect
 
 5. How to find a server?
 

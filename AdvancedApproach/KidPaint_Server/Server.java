@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -131,30 +132,38 @@ public class Server {
     out.flush();
   }
 
-  private void serve(Socket clientSocket, int studio) throws IOException {
-    DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+  private void serve(Socket clientSocket, int studio) {
+    try {
+      DataInputStream in = new DataInputStream(clientSocket.getInputStream());
 
-    while (true) {
-      int type = in.readInt(); // message type
+      while (true) {
+        try {
+          int type = in.readInt(); // message type
 
-      switch (type) {
-        case 0:
-          // text message
-          // TODO: forwardTextMessage
-          forwardTextMessage(in, studio);
+          switch (type) {
+            case 0:
+              // text message
+              forwardTextMessage(in, studio);
+              break;
+            case 1: // drawing message
+              forwardDrawingMessage(in, studio);
+              break;
+            case 2:
+              forwardBucketMessage(in, studio);
+              break;
+            case 3:
+              forwardSketchData(in, studio);
+              break;
+            default:
+              System.out.println("Unknown message type");
+          }
+        } catch (EOFException e) {
+          System.out.println("Client disconnected");
           break;
-        case 1: // drawing message
-          forwardDrawingMessage(in, studio);
-          break;
-        case 2:
-          forwardBucketMessage(in, studio);
-          break;
-        case 3:
-          forwardSketchData(in, studio);
-          break;
-        default:
-          System.out.println("Unknown message type");
+        }
       }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
