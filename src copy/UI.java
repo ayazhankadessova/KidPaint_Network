@@ -67,7 +67,7 @@ public class UI extends JFrame {
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12349);
+  DatagramSocket udpSocket = new DatagramSocket(12345);
   // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
@@ -102,8 +102,8 @@ public class UI extends JFrame {
           case 2:
             receiveBucketMessage(in);
             break;
-          case 3:
-            receiveStudios(in);
+          // case 3:
+          //   receiveStudios(in);
           default:
         }
       }
@@ -263,6 +263,9 @@ public class UI extends JFrame {
             try {
               System.out.println("Sending username");
               broadcastMessage(user);
+
+              // Choose studio
+              out.writeInt(2);
             } catch (IOException e1) {
               // TODO Auto-generated catch block
               e1.printStackTrace();
