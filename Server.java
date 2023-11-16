@@ -21,7 +21,7 @@ public class Server {
   ArrayList<Socket> list = new ArrayList<>();
 
   // map of studios and their sketch data
-  Map<String, List<Integer>> studios = new HashMap<>();
+  Map<Integer, List<Integer>> studios = new HashMap<>();
 
   // // list of sketch data
   List<Integer> sketchData = new ArrayList<>();
@@ -74,9 +74,9 @@ public class Server {
         try {
           // Studio
           sendStudioList(clientSocket);
-          if (!sketchData.isEmpty()) {
-            sendSketchData(clientSocket);
-          }
+          // if (!sketchData.isEmpty()) {
+          //   sendSketchData(clientSocket);
+          // }
           serve(clientSocket);
         } catch (IOException ex) {}
         synchronized (list) {
@@ -90,10 +90,13 @@ public class Server {
   private void sendStudioList(Socket clientSocket) throws IOException {
     DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
     out.writeInt(3); // message type for studio list
-    out.writeInt(studios.size());
-    for (String studio : studios.keySet()) {
-      out.writeUTF(studio);
-    }
+    // TEST
+    out.writeInt(2);
+    out.writeInt(1);
+    out.writeInt(2);
+    // for (String studio : studios.keySet()) {
+    //   out.writeUTF(studio);
+    // }
     out.flush();
   }
 
@@ -123,7 +126,7 @@ public class Server {
   private void serve(Socket clientSocket) throws IOException {
     DataInputStream in = new DataInputStream(clientSocket.getInputStream());
 
-    String studio = in.readUTF();
+    int studio = in.readInt();
     List<Integer> sketchData = studios.get(studio);
     if (sketchData == null) {
       sketchData = new ArrayList<>();
