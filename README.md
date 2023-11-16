@@ -68,8 +68,11 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 ## Issues:
 
 1. [x] Load: Saves only 40x30, not 50x50
+2. [ ] Bucket coloring too much
+3. [ ] send sketch data out of bounds
+4. disconnect
 
-1. How to find a server?
+5. How to find a server?
 
 - Use UDP to find where the server is
 - send it to caller so that you know who to send
