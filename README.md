@@ -33,10 +33,25 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 - 0 - chat message
 - 1 - drawing message
-- 2 - bucket
+- 2 - bucket data
 - 3 - sketch data
 
-2. Foward drawing message with type and length that we read from buffer
+2. Forward Drawing Message:
+
+- Send length of the message
+- Send type of the message
+- Send the message (loop)
+
+## Step By Step
+
+1. (CLient) Kid inputs the name and brodcasts the name via UDP
+2. (Server) Server responds with the IP Address
+4. (Client) CLient receives the IP Address and requsts the TCP connectione
+5. (Server) Server established the TCP connection & enables MultiThreading & send available studios
+6. (Client) Kid chooses a studio
+7. (Server) Server creates a studio if it is not in the list and adds the clientSocket in the resposonsible studio and send the sketchData for the studio if it exists
+8. (Client) Kid draws/sends messages/loads/saves
+9. (Server) Server responds to all the inputs based on cases specified and broadcasts them to clients in the same studio
 
 ## TODO:
 
@@ -44,7 +59,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [x] ask username
 [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
 [x] Fix assigning username
-[x] BUcket Data
+[x] Bucket Data
 [x] Save Data
 [x] Only save the image part
 
@@ -56,32 +71,29 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 [ ] Make methods more efficient -> less arrays, faster
 [ ] Can we make the method reusable?
-[ ] How to save in PNG? (currently saving w/o formal)
-[ ] Add Button for choosing the studio
-[ ] Fix UI - > Studio label choose -> too big
+[ ] Fix UI - > Studio Choosing Panel
 [ ] Display Studio name on top
+
+## TODO 2:
+
+[ ] Add new Features
 
 ## Issues:
 
 1. [x] Load: Saves only 40x30, not 50x50
-2. [ ] Bucket coloring too much
-3. [ ] send sketch data out of bounds
+2. [x] Bucket coloring out of borders
+3. [x] send sketch data out of bounds
 4. [x] disconnect
-
-5. How to find a server?
-
-- Use UDP to find where the server is
-- send it to caller so that you know who to send
-- TCP connection
-- bucket info
 
 2. drew smth already, for somebody who connected later. also get smth that was there earlier
 
 - download current stash
 
-## DO not
+## Do not
 
 1. Dont implement undo (override, etc)
+
+# Draft Notes:
 
 ## Things implemented:
 
