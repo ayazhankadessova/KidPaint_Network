@@ -106,6 +106,7 @@ public class Server {
     DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
     out.writeInt(3);
     out.writeInt(studios.size()); // number of studios
+    System.out.println("Sending studio list: " + studios.size());
     for (int studio : studios.keySet()) {
       out.writeInt(studio);
     }

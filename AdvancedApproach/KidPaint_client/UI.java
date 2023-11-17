@@ -121,7 +121,7 @@ public class UI extends JFrame {
     for (int i = 0; i < numberOfStudios; i++) {
       studios.add(in.readInt());
     }
-    System.out.println(studios.size());
+    System.out.println("Studios size:" + studios.size());
   }
 
   private void receiveTextMessage(DataInputStream in) throws IOException {
@@ -247,81 +247,94 @@ public class UI extends JFrame {
             getContentPane().remove(loginPanel);
 
             // send username
-            try {
-              System.out.println("Sending username");
-              broadcastMessage(user);
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+              @Override
+              protected Void doInBackground() throws Exception {
+                System.out.println("Sending username");
+                broadcastMessage(user);
 
-              if (studios == null) {
-                studios = new ArrayList<>(Arrays.asList(1, 2, 3));
-                System.out.println("Studios is null");
+                // sleep for 10 seconds
+                try {
+                  Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                  ex.printStackTrace();
+                }
+
+                return null;
               }
 
-              // Create studio selection panel
-              JPanel studioPanel = new JPanel();
-              studioPanel.setLayout(
-                new BoxLayout(studioPanel, BoxLayout.PAGE_AXIS)
-              ); // Change layout to BoxLayout
+              @Override
+              protected void done() {
+                // This method will be called on the EDT after doInBackground() has finished
+                // Check if studios is null
+                if (studios == null) {
+                  studios = new ArrayList<>(Arrays.asList(1, 2, 3));
+                  System.out.println("Studios is null");
+                }
 
-              JLabel studioLabel = new JLabel("Select Studio: ");
-              JTextField studioField = new JTextField(3); // Create a text field for input
+                // Create studio selection panel
+                JPanel studioPanel = new JPanel();
+                studioPanel.setLayout(
+                  new BoxLayout(studioPanel, BoxLayout.PAGE_AXIS)
+                ); // Change layout to BoxLayout
 
-              studioPanel.add(studioLabel);
-              studioPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
+                JLabel studioLabel = new JLabel("Select Studio: ");
+                JTextField studioField = new JTextField(3); // Create a text field for input
 
-              // Display available studios
-              for (Integer studio : studios) {
-                JLabel studioOptionLabel = new JLabel("Studio " + studio);
-                studioPanel.add(studioOptionLabel);
-              }
+                studioPanel.add(studioLabel);
+                studioPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
 
-              studioPanel.add(studioField);
+                // Display available studios
+                for (Integer studio : studios) {
+                  JLabel studioOptionLabel = new JLabel("Studio " + studio);
+                  studioPanel.add(studioOptionLabel);
+                }
 
-              JButton okButton = new JButton("OK");
-              studioPanel.add(Box.createVerticalStrut(10)); // Add another strut for space before the button
-              studioPanel.add(okButton);
+                studioPanel.add(studioField);
 
-              // Add action listener to the OK button
-              okButton.addActionListener(
-                new ActionListener() {
-                  @Override
-                  public void actionPerformed(ActionEvent e) {
-                    String studioInput = studioField.getText();
-                    try {
-                      int selectedStudio = Integer.parseInt(studioInput);
-                      out.writeInt(selectedStudio);
+                JButton okButton = new JButton("OK");
+                studioPanel.add(Box.createVerticalStrut(10)); // Add another strut for space before the button
+                studioPanel.add(okButton);
 
-                      // Remove studio selection panel and add base and message panels
-                      getContentPane().remove(studioPanel);
-                      getContentPane().add(basePanel, BorderLayout.CENTER);
-                      getContentPane().add(msgPanel, BorderLayout.EAST);
-                      validate();
-                      repaint();
-                    } catch (NumberFormatException ex) {
-                      // Show error message if input is not a valid integer
-                      JOptionPane.showMessageDialog(
-                        studioPanel,
-                        "Invalid input. Please enter a valid integer.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                      );
-                    } catch (IOException ex) {
-                      ex.printStackTrace();
+                // Add action listener to the OK button
+                okButton.addActionListener(
+                  new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                      String studioInput = studioField.getText();
+                      try {
+                        int selectedStudio = Integer.parseInt(studioInput);
+                        out.writeInt(selectedStudio);
+
+                        // Remove studio selection panel and add base and message panels
+                        getContentPane().remove(studioPanel);
+                        getContentPane().add(basePanel, BorderLayout.CENTER);
+                        getContentPane().add(msgPanel, BorderLayout.EAST);
+                        validate();
+                        repaint();
+                      } catch (NumberFormatException ex) {
+                        // Show error message if input is not a valid integer
+                        JOptionPane.showMessageDialog(
+                          studioPanel,
+                          "Invalid input. Please enter a valid integer.",
+                          "Error",
+                          JOptionPane.ERROR_MESSAGE
+                        );
+                      } catch (IOException ex) {
+                        ex.printStackTrace();
+                      }
                     }
                   }
-                }
-              );
+                );
 
-              // Add the studio selection panel to the frame
-              getContentPane().add(studioPanel, BorderLayout.CENTER);
-              validate();
-              repaint();
-              // getContentPane().add(basePanel, BorderLayout.CENTER);
-              // getContentPane().add(msgPanel, BorderLayout.EAST);
-              // validate();
-              // repaint();
-            } catch (IOException e1) {
-              e1.printStackTrace();
-            }
+                // Add the studio selection panel to the frame
+                getContentPane().add(studioPanel, BorderLayout.CENTER);
+                validate();
+                repaint();
+              }
+            };
+
+            worker.execute();
           } else {
             // If login fails, show an error message.
             JOptionPane.showMessageDialog(
