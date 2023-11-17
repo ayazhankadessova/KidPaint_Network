@@ -275,7 +275,9 @@ public class UI extends JFrame {
                 JPanel studioPanel = new JPanel();
                 studioPanel.setLayout(new FlowLayout()); // Change layout to BorderLayout
 
-                JLabel studioLabel = new JLabel("Select Studio: ");
+                JLabel studioLabel = new JLabel(
+                  "Type in another integer if you want to create a new studio!Select Studio: \n"
+                );
                 JTextField studioField = new JTextField(3); // Create a text field for input
                 studioField.setPreferredSize(new Dimension(50, 100));
 
