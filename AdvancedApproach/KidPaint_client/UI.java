@@ -26,6 +26,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 // import java.awt.event;
@@ -120,6 +121,7 @@ public class UI extends JFrame {
     for (int i = 0; i < numberOfStudios; i++) {
       studios.add(in.readInt());
     }
+    System.out.println(studios.size());
   }
 
   private void receiveTextMessage(DataInputStream in) throws IOException {
@@ -248,17 +250,78 @@ public class UI extends JFrame {
             try {
               System.out.println("Sending username");
               broadcastMessage(user);
-              // Choose studio
-              out.writeInt(3);
+
+              if (studios == null) {
+                studios = new ArrayList<>(Arrays.asList(1, 2, 3));
+                System.out.println("Studios is null");
+              }
+
+              // Create studio selection panel
+              JPanel studioPanel = new JPanel();
+              studioPanel.setLayout(
+                new BoxLayout(studioPanel, BoxLayout.PAGE_AXIS)
+              ); // Change layout to BoxLayout
+
+              JLabel studioLabel = new JLabel("Select Studio: ");
+              JTextField studioField = new JTextField(3); // Create a text field for input
+
+              studioPanel.add(studioLabel);
+              studioPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
+
+              // Display available studios
+              for (Integer studio : studios) {
+                JLabel studioOptionLabel = new JLabel("Studio " + studio);
+                studioPanel.add(studioOptionLabel);
+              }
+
+              studioPanel.add(studioField);
+
+              JButton okButton = new JButton("OK");
+              studioPanel.add(Box.createVerticalStrut(10)); // Add another strut for space before the button
+              studioPanel.add(okButton);
+
+              // Add action listener to the OK button
+              okButton.addActionListener(
+                new ActionListener() {
+                  @Override
+                  public void actionPerformed(ActionEvent e) {
+                    String studioInput = studioField.getText();
+                    try {
+                      int selectedStudio = Integer.parseInt(studioInput);
+                      out.writeInt(selectedStudio);
+
+                      // Remove studio selection panel and add base and message panels
+                      getContentPane().remove(studioPanel);
+                      getContentPane().add(basePanel, BorderLayout.CENTER);
+                      getContentPane().add(msgPanel, BorderLayout.EAST);
+                      validate();
+                      repaint();
+                    } catch (NumberFormatException ex) {
+                      // Show error message if input is not a valid integer
+                      JOptionPane.showMessageDialog(
+                        studioPanel,
+                        "Invalid input. Please enter a valid integer.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                      );
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                  }
+                }
+              );
+
+              // Add the studio selection panel to the frame
+              getContentPane().add(studioPanel, BorderLayout.CENTER);
+              validate();
+              repaint();
+              // getContentPane().add(basePanel, BorderLayout.CENTER);
+              // getContentPane().add(msgPanel, BorderLayout.EAST);
+              // validate();
+              // repaint();
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
-            // Askstudios("asking for studios"));
-            getContentPane().add(basePanel, BorderLayout.CENTER);
-            getContentPane().add(msgPanel, BorderLayout.EAST);
-            validate();
-            repaint();
           } else {
             // If login fails, show an error message.
             JOptionPane.showMessageDialog(
@@ -272,80 +335,9 @@ public class UI extends JFrame {
       }
     );
 
-    // Check if studios is null
-    //           if (studios == null) {
-    //             studios = new ArrayList<>();
-    //             studios.add(1);
-    //           }
-
-    //           // Create studio selection panel
-    //           JPanel studioPanel = new JPanel();
-    //           studioPanel.setLayout(new GridBagLayout());
-
-    //           JLabel studioLabel = new JLabel("Select Studio: ");
-    //           JComboBox<Integer> studioBox = new JComboBox<>(
-    //             studios.toArray(new Integer[0])
-    //           );
-
-    //           constraints.gridx = 0;
-    //           constraints.gridy = 0;
-    //           studioPanel.add(studioLabel, constraints);
-
-    //           constraints.gridx = 1;
-    //           constraints.gridy = 0;
-    //           studioPanel.add(studioBox, constraints);
-
-    //           JButton okButton = new JButton("OK");
-    //           constraints.gridx = 0;
-    //           constraints.gridy = 1;
-    //           constraints.gridwidth = 2;
-    //           studioPanel.add(okButton, constraints);
-
-    //           // Add action listener to the OK button
-    //           okButton.addActionListener(
-    //             new ActionListener() {
-    //               @Override
-    //               public void actionPerformed(ActionEvent e) {
-    //                 int selectedStudio = (Integer) studioBox.getSelectedItem();
-    //                 try {
-    //                   out.writeInt(selectedStudio);
-
-    //                   // Remove studio selection panel and add base and message panels
-    //                   getContentPane().remove(studioPanel);
-    //                   getContentPane().add(basePanel, BorderLayout.CENTER);
-    //                   getContentPane().add(msgPanel, BorderLayout.EAST);
-    //                   validate();
-    //                   repaint();
-    //                 } catch (IOException e1) {
-    //                   e1.printStackTrace();
-    //                 }
-    //               }
-    //             }
-    //           );
-
-    //           // Add the studio selection panel to the frame
-    //           getContentPane().add(studioPanel, BorderLayout.CENTER);
-    //         } catch (IOException e1) {
-    //           e1.printStackTrace();
-    //         }
-    //       } else {
-    //         // If login fails, show an error message.
-    //         JOptionPane.showMessageDialog(
-    //           UI.this,
-    //           "Invalid username. Username must be between 3 and 10 characters",
-    //           "Login Failed",
-    //           JOptionPane.ERROR_MESSAGE
-    //         );
-    //       }
-    //     }
-    //   }
-    // );
-
     // Add the login panel to the frame
     getContentPane().add(loginPanel, BorderLayout.CENTER);
 
-    // JPanel basePanel = new JPanel();
-    // getContentPane().add(basePanel, BorderLayout.CENTER);
     basePanel.setLayout(new BorderLayout(0, 0));
 
     paintPanel =

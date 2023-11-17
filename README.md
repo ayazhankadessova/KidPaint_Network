@@ -58,7 +58,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 [ ] Can we make the method reusable?
 [ ] How to save in PNG? (currently saving w/o formal)
 [ ] Add Button for choosing the studio
-[ ] Fix UI
+[ ] Fix UI - > Studio label choose -> too big
 [ ] Display Studio name on top
 
 ## Issues:
