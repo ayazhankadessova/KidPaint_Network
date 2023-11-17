@@ -215,7 +215,7 @@ public class Server {
       for (Socket s : list) {
         DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-        int numberOfMessages = sketchData.size() / 3;
+        // int numberOfMessages = sketchData.size() / 3;
         for (int i = 0; i < numberOfPixels; i++) {
           out.writeInt(1); // message type for drawing message
 

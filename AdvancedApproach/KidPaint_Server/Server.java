@@ -127,8 +127,23 @@ public class Server {
       out.writeInt(x); // x
       out.writeInt(y); // y
 
-      System.out.printf("SENDINNNNGGG %d @(%d, %d)\n", color, x, y);
+      System.out.printf("Sending Sketch Data: %d @(%d, %d)\n", color, x, y);
     }
+
+    // TODO: check why we can't use this
+    // for (int i = 0; i < numberOfMessages; i++) {
+    //   out.writeInt(1); // message type for drawing message
+
+    //   int color = sketchData.get(i * 3);
+    //   int x = sketchData.get(i * 3 + 1);
+    //   int y = sketchData.get(i * 3 + 2);
+
+    //   out.writeInt(color); // color
+    //   out.writeInt(x); // x
+    //   out.writeInt(y); // y
+
+    //   System.out.printf("SENDINNNNGGG %d @(%d, %d)\n", color, x, y);
+    // }
     out.flush();
   }
 
@@ -210,8 +225,9 @@ public class Server {
     int x = in.readInt();
     int y = in.readInt();
 
-    System.out.printf("RECEIVING %d @(%d, %d)\n", color, x, y);
-    // Store the sketch data
+    System.out.printf("Receiving Drawing Message: %d @(%d, %d)\n", color, x, y);
+
+    // Store the sketch data for the specified studio
     studios
       .computeIfAbsent(studio, k -> new ArrayList<>())
       .addAll(Arrays.asList(color, x, y));
@@ -219,7 +235,9 @@ public class Server {
     // Forward the message to all clients in the same studio
     List<Socket> clients = studioClients.get(studio);
 
-    System.out.println("Forwarding to " + clients.size() + " clients");
+    System.out.println(
+      "Forwarding Drawing Message to " + clients.size() + " clients"
+    );
 
     synchronized (clients) {
       Iterator<Socket> iterator = clients.iterator();
@@ -267,7 +285,9 @@ public class Server {
     // Get the list of clients for this studio
     List<Socket> clients = studioClients.get(studio);
 
-    System.out.println("Forwarding to " + clients.size() + " clients");
+    System.out.println(
+      "Forwarding Bucket message to " + clients.size() + " clients"
+    );
 
     synchronized (clients) {
       Iterator<Socket> iterator = clients.iterator();
@@ -302,6 +322,8 @@ public class Server {
       studio,
       k -> new ArrayList<>()
     );
+
+    // clear old sketch Data
     sketchData.clear();
     int numberOfX = in.readInt();
     int numberOfY = in.readInt();
@@ -321,7 +343,9 @@ public class Server {
     // Get the list of clients for this studio
     List<Socket> clients = studioClients.get(studio);
 
-    System.out.println("Forwarding to " + clients.size() + " clients");
+    System.out.println(
+      "Forwarding Sketch message to " + clients.size() + " clients"
+    );
 
     synchronized (clients) {
       Iterator<Socket> iterator = clients.iterator();
@@ -334,7 +358,8 @@ public class Server {
         try {
           DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-          int numberOfMessages = sketchData.size() / 3;
+          // TODO: check if we should use numberOfMessages  or numberOfPixels
+          // int numberOfMessages = sketchData.size() / 3;
           for (int i = 0; i < numberOfPixels; i++) {
             out.writeInt(1); // message type for drawing message
 
