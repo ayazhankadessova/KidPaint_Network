@@ -70,7 +70,6 @@ public class UI extends JFrame {
   private int selectedColor = -543230; // golden
 
   DatagramSocket udpSocket = new DatagramSocket(12349);
-  // udpSocket.setBroadcast(true);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -274,27 +273,36 @@ public class UI extends JFrame {
 
                 // Create studio selection panel
                 JPanel studioPanel = new JPanel();
-                studioPanel.setLayout(
-                  new BoxLayout(studioPanel, BoxLayout.PAGE_AXIS)
-                ); // Change layout to BoxLayout
+                studioPanel.setLayout(new FlowLayout()); // Change layout to BorderLayout
 
                 JLabel studioLabel = new JLabel("Select Studio: ");
                 JTextField studioField = new JTextField(3); // Create a text field for input
+                studioField.setPreferredSize(new Dimension(50, 100));
 
-                studioPanel.add(studioLabel);
-                studioPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
+                // Add the studioField to the NORTH position
+                studioPanel.add(studioField);
+
+                // Create a panel for the studios and set its layout to BoxLayout
+                JPanel studiosPanel = new JPanel();
+                studiosPanel.setLayout(
+                  new BoxLayout(studiosPanel, BoxLayout.PAGE_AXIS)
+                );
+
+                studiosPanel.add(studioLabel);
+                studiosPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
 
                 // Display available studios
                 for (Integer studio : studios) {
                   JLabel studioOptionLabel = new JLabel("Studio " + studio);
-                  studioPanel.add(studioOptionLabel);
+                  studiosPanel.add(studioOptionLabel);
                 }
 
-                studioPanel.add(studioField);
+                // Add the studiosPanel to the CENTER position
+                studioPanel.add(studiosPanel, BorderLayout.CENTER);
 
                 JButton okButton = new JButton("OK");
-                studioPanel.add(Box.createVerticalStrut(10)); // Add another strut for space before the button
-                studioPanel.add(okButton);
+                studiosPanel.add(Box.createVerticalStrut(10)); // Add another strut for space before the button
+                studiosPanel.add(okButton);
 
                 // Add action listener to the OK button
                 okButton.addActionListener(
