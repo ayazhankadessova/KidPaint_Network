@@ -55,28 +55,27 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 ## TODO:
 
-[x] Create draft connection
-[x] ask username
-[x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
-[x] Fix assigning username
-[x] Bucket Data
-[x] Save Data
-[x] Only save the image part
+- [x] Create draft connection
+- [x] ask username
+- [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
+- [x] Fix assigning username
+- [x] Bucket Data
+- [x] Save Data
+- [x] Only save the image part
+- [x] Load : Get all the pixels, colors etc and send
+- [x] send load to all ppl
+- [x] Create Frame to ask for username
+- [x] Send bucket data
+- [x] Get original drawing -> KEEP ARRAY OF DATA and send to server
 
-[x] Load : Get all the pixels, colors etc and send
-[x] send load to all ppl
-[x] Create Frame to ask for username
-[x] Send bucket data
-[x] Get original drawing -> KEEP ARRAY OF DATA and send to server
-
-[ ] Make methods more efficient -> less arrays, faster
-[ ] Can we make the method reusable?
-[ ] Fix UI - > Studio Choosing Panel
-[ ] Display Studio name on top
+- [ ] Make methods more efficient -> less arrays, faster
+- [ ] Can we make the method reusable?
+- [ ] Fix UI - > Studio Choosing Panel
+- [ ] Display Studio name on top
 
 ## TODO 2:
 
-[ ] Add new Features
+- [ ] Add new Features
 
 ## Issues:
 
