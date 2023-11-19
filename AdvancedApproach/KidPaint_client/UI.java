@@ -69,7 +69,7 @@ public class UI extends JFrame {
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12349);
+  DatagramSocket udpSocket = new DatagramSocket(12348);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -105,6 +105,11 @@ public class UI extends JFrame {
             break;
           case 3:
             receiveStudios(in);
+          case 4:
+            // clearSketch(in);
+            clear();
+            repaint();
+            break;
           default:
         }
       }
@@ -122,6 +127,15 @@ public class UI extends JFrame {
     }
     System.out.println("Studios size:" + studios.size());
   }
+
+  // private void clearSketch(DataInputStream in) throws IOException {
+  //   int numberOfStudios = in.readInt();
+  //   studios = new ArrayList<>();
+  //   for (int i = 0; i < numberOfStudios; i++) {
+  //     studios.add(in.readInt());
+  //   }
+  //   System.out.println("Studios size:" + studios.size());
+  // }
 
   private void receiveTextMessage(DataInputStream in) throws IOException {
     byte[] buffer = new byte[1024];
@@ -521,6 +535,22 @@ public class UI extends JFrame {
     JButton LoadButton = new JButton("Load Sketch");
     toolPanel.add(LoadButton);
 
+    JButton clear = new JButton("Clear");
+    toolPanel.add(clear);
+
+    clear.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          try {
+            out.writeInt(4);
+          } catch (IOException ex) {
+            ex.printStackTrace();
+          }
+        }
+      }
+    );
+
     // change the paint mode to PIXEL mode
     tglPen.addActionListener(
       new ActionListener() {
@@ -749,6 +779,16 @@ public class UI extends JFrame {
 
     data[col][row] = selectedColor;
     paintPanel.repaint(col * blockSize, row * blockSize, blockSize, blockSize);
+  }
+
+  public void clear() {
+    int blackColor = Color.BLACK.getRGB();
+    for (int col = 0; col < data.length; col++) {
+      for (int row = 0; row < data[col].length; row++) {
+        data[col][row] = blackColor; // Set to background color
+      }
+    }
+    paintPanel.repaint(); // Repaint the entire panel
   }
 
   public void paintPixel(int color, int col, int row) {

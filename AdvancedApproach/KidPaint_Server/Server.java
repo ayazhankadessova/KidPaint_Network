@@ -170,6 +170,9 @@ public class Server {
             case 3:
               forwardSketchData(in, studio);
               break;
+            case 4:
+              forwardClear(in, studio);
+              break;
             default:
               System.out.println("Unknown message type");
           }
@@ -218,6 +221,36 @@ public class Server {
         }
       }
     }
+  }
+
+  private void forwardClear(DataInputStream in, int studio) throws IOException {
+    // Other code...
+
+    // Clear the sketch data for the specified studio
+    studios.remove(studio);
+
+    // Forward the message to all clients in the same studio
+    List<Socket> clients = studioClients.get(studio);
+
+    synchronized (clients) {
+      Iterator<Socket> iterator = clients.iterator();
+      while (iterator.hasNext()) {
+        Socket s = iterator.next();
+        if (s.isClosed()) {
+          iterator.remove();
+          continue;
+        }
+        try {
+          DataOutputStream out = new DataOutputStream(s.getOutputStream());
+          out.writeInt(4); // message type for "clear sketch"
+          out.flush();
+        } catch (IOException ex) {
+          System.out.println("Client already disconnected");
+          iterator.remove();
+        }
+      }
+    }
+    // Other code...
   }
 
   private void forwardDrawingMessage(DataInputStream in, int studio)
