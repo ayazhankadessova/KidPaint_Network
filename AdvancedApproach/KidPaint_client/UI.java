@@ -69,7 +69,7 @@ public class UI extends JFrame {
   private static UI instance;
   private int selectedColor = -543230; // golden
 
-  DatagramSocket udpSocket = new DatagramSocket(12348);
+  DatagramSocket udpSocket = new DatagramSocket(12349);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -289,9 +289,7 @@ public class UI extends JFrame {
                 JPanel studioPanel = new JPanel();
                 studioPanel.setLayout(new FlowLayout()); // Change layout to BorderLayout
 
-                JLabel studioLabel = new JLabel(
-                  "Type in another integer if you want to create a new studio!Select Studio: \n"
-                );
+                JLabel studioLabel = new JLabel("Select Studio: \n");
                 JTextField studioField = new JTextField(3); // Create a text field for input
                 studioField.setPreferredSize(new Dimension(50, 100));
 

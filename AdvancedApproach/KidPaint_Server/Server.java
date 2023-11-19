@@ -227,7 +227,12 @@ public class Server {
     // Other code...
 
     // Clear the sketch data for the specified studio
-    studios.remove(studio);
+    List<Integer> sketchData = studios.get(studio);
+    if (sketchData != null) {
+      sketchData.clear();
+    }
+
+    System.out.println("Forwarding Clear message to " + studio);
 
     // Forward the message to all clients in the same studio
     List<Socket> clients = studioClients.get(studio);
@@ -250,7 +255,6 @@ public class Server {
         }
       }
     }
-    // Other code...
   }
 
   private void forwardDrawingMessage(DataInputStream in, int studio)
