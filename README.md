@@ -63,6 +63,33 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 
 ## TODO:
 
+- [ ] clear the drawing check
+- [ ] Cannot see clear button -> fix it (can only see when full windown)
+- [ ] Create new studio -> check if it is working
+
+## TODO 2:
+
+- [ ] Add new Features
+
+## Less important:
+
+- [ ] Make methods more efficient -> less arrays, faster
+- [ ] Can we make the method reusable?
+- [ ] Fix UI - > Studio Choosing Panel
+- [ ] Display Studio name on top
+
+## Issues:
+
+1. [x] Load: Saves only 40x30, not 50x50
+2. [x] Bucket coloring out of borders
+3. [x] send sketch data out of bounds
+4. [x] disconnect
+5. drew smth already, for somebody who connected later. also get smth that was there earlier
+
+- download current stash
+
+## DONE:
+
 - [x] Create draft connection
 - [x] ask username
 - [x] make it so when we know the username, we can add it as in the beginning, to know who is messaging
@@ -75,28 +102,6 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 - [x] Create Frame to ask for username
 - [x] Send bucket data
 - [x] Get original drawing -> KEEP ARRAY OF DATA and send to server
-
-- [ ] Make methods more efficient -> less arrays, faster
-- [ ] Can we make the method reusable?
-- [ ] Fix UI - > Studio Choosing Panel
-- [ ] Display Studio name on top
-- [ ] clear
-- [ ] Create new studi
-
-## TODO 2:
-
-- [ ] Add new Features
-
-## Issues:
-
-1. [x] Load: Saves only 40x30, not 50x50
-2. [x] Bucket coloring out of borders
-3. [x] send sketch data out of bounds
-4. [x] disconnect
-5. [ ] Cannot see clear button
-6. drew smth already, for somebody who connected later. also get smth that was there earlier
-
-- download current stash
 
 ## Do not
 
