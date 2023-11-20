@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -105,9 +106,9 @@ public class Server {
   private void sendStudioList(Socket clientSocket) throws IOException {
     DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
     out.writeInt(3);
-    out.writeInt(studios.size()); // number of studios
-    System.out.println("Sending studio list: " + studios.size());
-    for (int studio : studios.keySet()) {
+    out.writeInt(studioClients.size()); // number of studios
+    System.out.println("Sending studio list: " + studioClients.size());
+    for (int studio : studioClients.keySet()) {
       out.writeInt(studio);
     }
     out.flush();
@@ -224,12 +225,14 @@ public class Server {
   }
 
   private void forwardClear(DataInputStream in, int studio) throws IOException {
-    // Other code...
-
     // Clear the sketch data for the specified studio
+    // Get the sketch data for the specified studio
     List<Integer> sketchData = studios.get(studio);
     if (sketchData != null) {
-      sketchData.clear();
+      // Iterate through sketchData and set every third element to Color.black
+      for (int i = 2; i < sketchData.size(); i += 3) {
+        sketchData.set(i, Color.black.getRGB());
+      }
     }
 
     System.out.println("Forwarding Clear message to " + studio);

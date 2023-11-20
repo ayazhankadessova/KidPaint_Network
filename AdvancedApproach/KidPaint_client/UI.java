@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-// import java.awt.event;
+// import java.awt.event;f
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.JFileChooser;
@@ -69,9 +69,9 @@ public class UI extends JFrame {
   private List<Integer> studios;
   private static UI instance;
   private int selectedColor = -543230; // golden
-  private int studioChoice = 1;
+  // private static int studioChoice = 2;
 
-  DatagramSocket udpSocket = new DatagramSocket(12345);
+  DatagramSocket udpSocket = new DatagramSocket(12348);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -282,10 +282,10 @@ public class UI extends JFrame {
               protected void done() {
                 // This method will be called on the EDT after doInBackground() has finished
                 // Check if studios is null
-                if (studios == null) {
-                  studios = new ArrayList<>(Arrays.asList(1, 2, 3));
-                  System.out.println("Studios is null");
-                }
+                // if (studios == null) {
+                //   studios = new ArrayList<>(Arrays.asList(1, 2, 3));
+                //   System.out.println("Studios is null");
+                // }
 
                 // Create studio selection panel
                 JPanel studioPanel = new JPanel();
@@ -307,9 +307,8 @@ public class UI extends JFrame {
                 studiosPanel.add(studioLabel);
                 studiosPanel.add(Box.createVerticalStrut(10)); // Add vertical strut to create space
 
-                // Display available studios
-                for (Integer studio : studios) {
-                  JLabel studioOptionLabel = new JLabel("Studio " + studio);
+                for (int i = 1; i <= studios.size(); i++) {
+                  JLabel studioOptionLabel = new JLabel("Studio " + i);
                   studiosPanel.add(studioOptionLabel);
                 }
 
@@ -328,19 +327,30 @@ public class UI extends JFrame {
                       String studioInput = studioField.getText();
                       try {
                         int selectedStudio = Integer.parseInt(studioInput);
-                        out.writeInt(selectedStudio);
+                        if (
+                          selectedStudio < 1 || selectedStudio > studios.size()
+                        ) {
+                          JOptionPane.showMessageDialog(
+                            null,
+                            "Invalid studio number. Please enter a number between 1 and " +
+                            studios.size(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                          );
+                        } else {
+                          out.writeInt(selectedStudio);
 
-                        // Remove studio selection panel and add base and message panels
-                        getContentPane().remove(studioPanel);
-                        getContentPane().add(basePanel, BorderLayout.CENTER);
-                        getContentPane().add(msgPanel, BorderLayout.EAST);
-                        validate();
-                        repaint();
+                          // Remove studio selection panel and add base and message panels
+                          getContentPane().remove(studioPanel);
+                          getContentPane().add(basePanel, BorderLayout.CENTER);
+                          getContentPane().add(msgPanel, BorderLayout.EAST);
+                          validate();
+                          repaint();
+                        }
                       } catch (NumberFormatException ex) {
-                        // Show error message if input is not a valid integer
                         JOptionPane.showMessageDialog(
-                          studioPanel,
-                          "Invalid input. Please enter a valid integer.",
+                          null,
+                          "Invalid input. Please enter a number.",
                           "Error",
                           JOptionPane.ERROR_MESSAGE
                         );
@@ -374,33 +384,14 @@ public class UI extends JFrame {
                 createButton.addActionListener(
                   new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                      if (studios == null || studios.isEmpty()) {
-                        try {
-                          out.writeInt(1);
-                        } catch (IOException ex) {
-                          ex.printStackTrace();
-                        }
-                        System.out.println("Studios is null or empty");
-                      } else {
-                        // Sort the studios list
-                        Collections.sort(studios);
-
-                        // Find the next integer that is not in the list
-                        int nextStudio = 1;
-                        for (Integer studio : studios) {
-                          if (studio == nextStudio) {
-                            nextStudio++;
-                          } else {
-                            break;
-                          }
-                        }
-
-                        // Send nextStudio to the server
-                        try {
-                          out.writeInt(nextStudio);
-                        } catch (IOException ex) {
-                          ex.printStackTrace();
-                        }
+                      System.out.println(
+                        "Sending studio choice" + (studios.size() + 1)
+                      );
+                      // Send nextStudio to the server
+                      try {
+                        out.writeInt(studios.size() + 1);
+                      } catch (IOException ex) {
+                        ex.printStackTrace();
                       }
 
                       // Show dialog to enter width and height
@@ -437,7 +428,6 @@ public class UI extends JFrame {
                   }
                 );
                 choicePanel.add(createButton);
-
                 // Add the studio selection panel to the frame
                 getContentPane().add(choicePanel, BorderLayout.CENTER);
                 validate();
