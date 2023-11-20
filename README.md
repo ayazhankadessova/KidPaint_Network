@@ -80,6 +80,8 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 - [ ] Can we make the method reusable?
 - [ ] Fix UI - > Studio Choosing Panel
 - [ ] Display Studio name on top
+- [ ] clear
+- [ ] Create new studi
 
 ## TODO 2:
 

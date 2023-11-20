@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 // import java.awt.event;
@@ -68,8 +69,9 @@ public class UI extends JFrame {
   private List<Integer> studios;
   private static UI instance;
   private int selectedColor = -543230; // golden
+  private int studioChoice = 1;
 
-  DatagramSocket udpSocket = new DatagramSocket(12349);
+  DatagramSocket udpSocket = new DatagramSocket(12345);
 
   int[][] data = new int[50][50]; // pixel color data array
   int blockSize = 16;
@@ -349,8 +351,95 @@ public class UI extends JFrame {
                   }
                 );
 
+                // Create choice panel
+                JPanel choicePanel = new JPanel();
+
+                // Create "Join Existing Studio" button
+                JButton joinButton = new JButton("Join Existing Studio");
+                joinButton.addActionListener(
+                  new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                      // Show studioPanel
+                      getContentPane().remove(choicePanel);
+                      getContentPane().add(studioPanel, BorderLayout.CENTER);
+                      validate();
+                      repaint();
+                    }
+                  }
+                );
+                choicePanel.add(joinButton);
+
+                // Create "Create New Studio" button
+                JButton createButton = new JButton("Create New Studio");
+                createButton.addActionListener(
+                  new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                      if (studios == null || studios.isEmpty()) {
+                        try {
+                          out.writeInt(1);
+                        } catch (IOException ex) {
+                          ex.printStackTrace();
+                        }
+                        System.out.println("Studios is null or empty");
+                      } else {
+                        // Sort the studios list
+                        Collections.sort(studios);
+
+                        // Find the next integer that is not in the list
+                        int nextStudio = 1;
+                        for (Integer studio : studios) {
+                          if (studio == nextStudio) {
+                            nextStudio++;
+                          } else {
+                            break;
+                          }
+                        }
+
+                        // Send nextStudio to the server
+                        try {
+                          out.writeInt(nextStudio);
+                        } catch (IOException ex) {
+                          ex.printStackTrace();
+                        }
+                      }
+
+                      // Show dialog to enter width and height
+                      String width = JOptionPane.showInputDialog(
+                        "Enter width:"
+                      );
+                      String height = JOptionPane.showInputDialog(
+                        "Enter height:"
+                      );
+
+                      // Create a new data array with the specified width and height
+                      int[][] newData = new int[Integer.parseInt(
+                        width
+                      )][Integer.parseInt(height)];
+
+                      // Replace the old data array with the new one
+                      data = newData;
+
+                      // Send width and height to the server
+                      // try {
+                      //   out.writeInt(Integer.parseInt(width));
+                      //   out.writeInt(Integer.parseInt(height));
+                      // } catch (IOException ex) {
+                      //   ex.printStackTrace();
+                      // }
+
+                      // Show basePanel and msgPanel
+                      getContentPane().remove(choicePanel);
+                      getContentPane().add(basePanel, BorderLayout.CENTER);
+                      getContentPane().add(msgPanel, BorderLayout.EAST);
+                      validate();
+                      repaint();
+                    }
+                  }
+                );
+                choicePanel.add(createButton);
+
                 // Add the studio selection panel to the frame
-                getContentPane().add(studioPanel, BorderLayout.CENTER);
+                getContentPane().add(choicePanel, BorderLayout.CENTER);
                 validate();
                 repaint();
               }
