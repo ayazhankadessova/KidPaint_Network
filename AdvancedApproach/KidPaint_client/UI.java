@@ -199,6 +199,8 @@ public class UI extends JFrame {
     String serverIP = parts[0];
     int serverPort = Integer.parseInt(parts[1]);
 
+    udpSocket.close();
+
     // Establish TCP connection to the server
     Socket socket = new Socket(serverIP, serverPort);
 
