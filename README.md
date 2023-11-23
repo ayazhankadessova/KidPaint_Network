@@ -61,6 +61,12 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 7. (Client) Kid draws/sends messages/loads/saves
 8. (Server) Server responds to all the inputs based on cases specified and broadcasts them to clients in the same studio
 
+## Additional Features:
+
+1. Clear all the painiting
+2. Mouse Right CLicked changes the color from original to newly set
+3. Person can choose the pensize and color based on that. If the pen size is 3 it will color 3 circles at Once
+
 ## TODO:
 
 - [ ] clear the drawing check

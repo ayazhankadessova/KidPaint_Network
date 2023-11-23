@@ -265,6 +265,7 @@ public class Server {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
+    // int penSize = in.readInt();
 
     System.out.printf("Receiving Drawing Message: %d @(%d, %d)\n", color, x, y);
 
@@ -294,6 +295,7 @@ public class Server {
           out.writeInt(color);
           out.writeInt(x);
           out.writeInt(y);
+          // out.writeInt(penSize);
           out.flush();
         } catch (IOException e) {
           e.printStackTrace();

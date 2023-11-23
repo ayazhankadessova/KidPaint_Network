@@ -42,6 +42,8 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 enum PaintMode {
   Pixel,
@@ -62,6 +64,7 @@ public class UI extends JFrame {
   private JToggleButton tglPen;
   private JToggleButton tglBucket;
   private static JLabel password1, label;
+  private int penSize = 1;
   // private static JTextField username;
   private String user;
   // private static JButton button;
@@ -157,6 +160,7 @@ public class UI extends JFrame {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
+    // int customPenSize = in.readInt();
 
     System.out.println("Receiving pixel message");
 
@@ -517,17 +521,22 @@ public class UI extends JFrame {
             for (int i = 0; i < data.length; i++) {
               for (int j = 0; j < data[0].length; j++) {
                 if (data[i][j] == originalColor) {
-                  data[i][j] = selectedColor;
+                  for (int dx = 0; dx < penSize; dx++) {
+                    if (i + dx < data.length && j < data[0].length) {
+                      data[i + dx][j] = selectedColor;
 
-                  // send data to the server
-                  try {
-                    out.writeInt(1);
-                    out.writeInt(selectedColor);
-                    out.writeInt(i);
-                    out.writeInt(j);
-                    out.flush();
-                  } catch (IOException ex) {
-                    ex.printStackTrace(); // for debugging, remove it in production stage
+                      // send data to the server
+                      try {
+                        out.writeInt(1);
+                        out.writeInt(selectedColor);
+                        out.writeInt(i + dx);
+                        out.writeInt(j);
+                        System.out.println("Sending " + (i + dx) + ", " + j);
+                        out.flush();
+                      } catch (IOException ex) {
+                        ex.printStackTrace(); // for debugging, remove it in production stage
+                      }
+                    }
                   }
                 }
               }
@@ -558,17 +567,24 @@ public class UI extends JFrame {
       new MouseMotionListener() {
         @Override
         public void mouseDragged(MouseEvent e) {
-          if (
-            paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0
-          ) try { //					paintPixel(e.getX() / blockSize, e.getY() / blockSize);
-            // send data to the server instead of updating the screen
-            out.writeInt(1);
-            out.writeInt(selectedColor);
-            out.writeInt(e.getX() / blockSize);
-            out.writeInt(e.getY() / blockSize);
-            out.flush();
-          } catch (IOException ex) {
-            ex.printStackTrace(); // for debugging, remove it in production stage
+          if (paintMode == PaintMode.Pixel && e.getX() >= 0 && e.getY() >= 0) {
+            int x = e.getX() / blockSize;
+            int y = e.getY() / blockSize;
+
+            for (int i = 0; i < penSize; i++) {
+              if (x + i < data.length && y < data[0].length) {
+                // send data to the server
+                try {
+                  out.writeInt(1);
+                  out.writeInt(selectedColor);
+                  out.writeInt(x + i);
+                  out.writeInt(y);
+                  out.flush();
+                } catch (IOException ex) {
+                  ex.printStackTrace(); // for debugging, remove it in production stage
+                }
+              }
+            }
           }
         }
 
@@ -629,6 +645,29 @@ public class UI extends JFrame {
     tglPen = new JToggleButton("Pen");
     tglPen.setSelected(true);
     toolPanel.add(tglPen);
+
+    // Create a slider with a range from 1 to 5
+    JSlider penSizeSlider = new JSlider(1, 5);
+
+    // Set the initial value
+    penSizeSlider.setValue(1);
+
+    // Add labels to the slider
+    penSizeSlider.setPaintLabels(true);
+
+    // Add the slider to the tool panel
+    toolPanel.add(new JLabel("Pen Size:"));
+    toolPanel.add(penSizeSlider);
+
+    // Add a change listener to the slider to update the pen size when the slider is moved
+    penSizeSlider.addChangeListener(
+      new ChangeListener() {
+        public void stateChanged(ChangeEvent e) {
+          penSize = ((JSlider) e.getSource()).getValue();
+          System.out.println("Pen size: " + penSize);
+        }
+      }
+    );
 
     tglBucket = new JToggleButton("Bucket");
     toolPanel.add(tglBucket);
@@ -885,6 +924,23 @@ public class UI extends JFrame {
     data[col][row] = selectedColor;
     paintPanel.repaint(col * blockSize, row * blockSize, blockSize, blockSize);
   }
+
+  // public void paintPixel(int color, int col, int row, int penSize) {
+  //   if (col >= data.length || row >= data[0].length) return;
+
+  //   for (int i = col; i < col + penSize && i < data.length; i++) {
+  //     for (int j = row; j < row + penSize && j < data[0].length; j++) {
+  //       data[i][j] = color;
+  //     }
+  //   }
+
+  //   paintPanel.repaint(
+  //     col * blockSize,
+  //     row * blockSize,
+  //     penSize * blockSize,
+  //     penSize * blockSize
+  //   );
+  // }
 
   public void clear() {
     int blackColor = Color.BLACK.getRGB();
