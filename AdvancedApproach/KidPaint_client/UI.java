@@ -508,7 +508,32 @@ public class UI extends JFrame {
     paintPanel.addMouseListener(
       new MouseListener() {
         @Override
-        public void mouseClicked(MouseEvent e) {}
+        public void mouseClicked(MouseEvent e) {
+          if (SwingUtilities.isRightMouseButton(e)) {
+            int x = e.getX() / blockSize;
+            int y = e.getY() / blockSize;
+            int originalColor = data[x][y];
+
+            for (int i = 0; i < data.length; i++) {
+              for (int j = 0; j < data[0].length; j++) {
+                if (data[i][j] == originalColor) {
+                  data[i][j] = selectedColor;
+
+                  // send data to the server
+                  try {
+                    out.writeInt(1);
+                    out.writeInt(selectedColor);
+                    out.writeInt(i);
+                    out.writeInt(j);
+                    out.flush();
+                  } catch (IOException ex) {
+                    ex.printStackTrace(); // for debugging, remove it in production stage
+                  }
+                }
+              }
+            }
+          }
+        }
 
         @Override
         public void mouseEntered(MouseEvent e) {}
