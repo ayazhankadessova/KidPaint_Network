@@ -66,6 +66,7 @@ KidPaint is a paint app for kids. A kid can use the pen or bucket function to dr
 1. Clear all the painiting
 2. Mouse Right CLicked changes the color from original to newly set
 3. Person can choose the pensize and color based on that. If the pen size is 3 it will color 3 circles at Once
+4. Stores a picture not just as the coordinates, but as an actual picture
 
 ## TODO:
 
