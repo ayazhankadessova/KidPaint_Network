@@ -272,7 +272,7 @@ public class UI extends JFrame {
 
                 // sleep for 10 seconds
                 try {
-                  Thread.sleep(10000);
+                  Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                   ex.printStackTrace();
                 }
@@ -334,7 +334,7 @@ public class UI extends JFrame {
                         ) {
                           JOptionPane.showMessageDialog(
                             null,
-                            "Invalid studio number. Please enter a number between 1 and " +
+                            "Invalid studio number. Number or studios: " +
                             studios.size(),
                             "Error",
                             JOptionPane.ERROR_MESSAGE
@@ -608,13 +608,14 @@ public class UI extends JFrame {
     tglBucket = new JToggleButton("Bucket");
     toolPanel.add(tglBucket);
 
-    JButton saveButton = new JButton("Save Sketch");
+    JButton saveButton = new JButton("Save");
     toolPanel.add(saveButton);
 
-    JButton LoadButton = new JButton("Load Sketch");
+    JButton LoadButton = new JButton("Load");
     toolPanel.add(LoadButton);
 
     JButton clear = new JButton("Clear");
+    // clear.setPreferredSize(new Dimension(50, 25)); // set preferred size
     toolPanel.add(clear);
 
     clear.addActionListener(
