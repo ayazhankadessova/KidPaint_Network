@@ -2,6 +2,10 @@ import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -174,6 +178,8 @@ public class Server {
             case 4:
               forwardClear(in, studio);
               break;
+            case 5:
+              forwardFileMessage(in, studio);
             default:
               System.out.println("Unknown message type");
           }
@@ -215,6 +221,46 @@ public class Server {
           out.writeInt(0); // message type
           out.writeInt(len);
           out.write(buffer, 0, len);
+          out.flush();
+        } catch (IOException ex) {
+          System.out.println("Client already disconnected");
+          iterator.remove();
+        }
+      }
+    }
+  }
+
+  private void forwardFileMessage(DataInputStream in, int studio)
+    throws IOException {
+    byte[] buffer = new byte[1024];
+    // read the file size
+    int fileSize = in.readInt();
+
+    // Get the list of clients for this studio
+    List<Socket> clients = studioClients.get(studio);
+
+    System.out.println("Forwarding to " + clients.size() + " clients");
+
+    synchronized (clients) {
+      Iterator<Socket> iterator = clients.iterator();
+      while (iterator.hasNext()) {
+        Socket s = iterator.next();
+        if (s.isClosed()) {
+          iterator.remove();
+          continue;
+        }
+        try {
+          DataOutputStream out = new DataOutputStream(s.getOutputStream());
+          out.writeInt(5); // message type
+          out.writeInt(fileSize);
+
+          int read = 0;
+          while (read < fileSize) {
+            int actual = in.read(buffer, 0, Math.min(1024, fileSize - read));
+            out.write(buffer, 0, actual);
+            read += actual;
+          }
+
           out.flush();
         } catch (IOException ex) {
           System.out.println("Client already disconnected");

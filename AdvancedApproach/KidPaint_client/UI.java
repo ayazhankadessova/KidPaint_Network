@@ -18,21 +18,25 @@ import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+// import java.awt.event;f
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-// import java.awt.event;f
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -67,6 +71,8 @@ public class UI extends JFrame {
   private int penSize = 1;
   // private static JTextField username;
   private String user;
+  private String shape = "Triangle";
+
   // private static JButton button;
   // add array of integers
   private List<Integer> studios;
@@ -115,6 +121,9 @@ public class UI extends JFrame {
             clear();
             repaint();
             break;
+          case 5:
+            receiveFileMessage(in);
+            break;
           default:
         }
       }
@@ -156,16 +165,39 @@ public class UI extends JFrame {
     });
   }
 
+  private void receiveFileMessage(DataInputStream in) throws IOException {
+    byte[] buffer = new byte[1024];
+    // read the file size
+    int fileSize = in.readInt();
+
+    // Save the file
+    File receivedFile = new File("receivedFile");
+    FileOutputStream fos = new FileOutputStream(receivedFile);
+
+    int read = 0;
+    while (read < fileSize) {
+      int actual = in.read(buffer, 0, Math.min(1024, fileSize - read));
+      fos.write(buffer, 0, actual);
+      read += actual;
+    }
+
+    fos.close();
+
+    String msg = "Received a file: " + receivedFile.getAbsolutePath();
+    System.out.println(msg);
+
+    SwingUtilities.invokeLater(() -> {
+      chatArea.append(msg + "\n");
+    });
+  }
+
   private void receivePixelMessage(DataInputStream in) throws IOException {
     int color = in.readInt();
     int x = in.readInt();
     int y = in.readInt();
-    // int customPenSize = in.readInt();
 
     System.out.println("Receiving pixel message");
-
     paintPixel(color, x, y);
-    //TODO: Update the screen
   }
 
   private void receiveBucketMessage(DataInputStream in) throws IOException {
@@ -571,22 +603,46 @@ public class UI extends JFrame {
             int x = e.getX() / blockSize;
             int y = e.getY() / blockSize;
 
-            for (int i = 0; i < penSize; i++) {
-              if (x + i < data.length && y < data[0].length) {
-                // send data to the server
-                try {
-                  out.writeInt(1);
-                  out.writeInt(selectedColor);
-                  out.writeInt(x + i);
-                  out.writeInt(y);
-                  out.flush();
-                } catch (IOException ex) {
-                  ex.printStackTrace(); // for debugging, remove it in production stage
+            if (shape.equals("Circle")) {
+              // send coordinates for a circle
+              sendCoordinates(x, y);
+            } else if (shape.equals("Square")) {
+              // send coordinates for a larger square
+              for (int i = 0; i <= 3; i++) {
+                for (int j = 0; j <= 3; j++) {
+                  sendCoordinates(x + i, y + j);
                 }
               }
+            } else if (shape.equals("Triangle")) {
+              // send coordinates for a larger triangle
+              for (int i = 0; i <= 3; i++) {
+                for (int j = 0; j <= i; j++) {
+                  sendCoordinates(x + j, y + i);
+                }
+              }
+            } else if (shape.equals("Diamond")) {
+              // send coordinates for a diamond
+              sendCoordinates(x, y); // left corner
+              sendCoordinates(x + 3, y); // top corner
+              sendCoordinates(x + 6, y); // right corner
+              sendCoordinates(x + 3, y + 3); // bottom corner
             }
           }
         }
+
+        // private void sendCoordinates(int x, int y) {
+        //   if (x < data.length && y < data[0].length) {
+        //     try {
+        //       out.writeInt(1);
+        //       out.writeInt(selectedColor);
+        //       out.writeInt(x);
+        //       out.writeInt(y);
+        //       out.flush();
+        //     } catch (IOException ex) {
+        //       ex.printStackTrace(); // for debugging, remove it in production stage
+        //     }
+        //   }
+        // }
 
         @Override
         public void mouseMoved(MouseEvent e) {}
@@ -668,6 +724,20 @@ public class UI extends JFrame {
         }
       }
     );
+
+    String[] shapes = { "Square", "Triangle", "Circle", "Diamond" };
+    JComboBox<String> shapeList = new JComboBox<>(shapes);
+    shapeList.setSelectedIndex(0);
+    shapeList.addActionListener(
+      new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          JComboBox cb = (JComboBox) e.getSource();
+          shape = (String) cb.getSelectedItem();
+          // set your shape variable here
+        }
+      }
+    );
+    toolPanel.add(shapeList);
 
     tglBucket = new JToggleButton("Bucket");
     toolPanel.add(tglBucket);
@@ -847,6 +917,25 @@ public class UI extends JFrame {
 
     msgPanel.add(msgField, BorderLayout.SOUTH);
 
+    // Add a button for choosing a file
+    JButton fileButton = new JButton("Choose File");
+    msgPanel.add(fileButton, BorderLayout.EAST);
+
+    // handle button click event of the file button
+    fileButton.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          JFileChooser fileChooser = new JFileChooser();
+          int returnValue = fileChooser.showOpenDialog(null);
+          if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            onFileSelected(selectedFile);
+          }
+        }
+      }
+    );
+
     // handle key-input event of the message field
     msgField.addKeyListener(
       new KeyListener() {
@@ -911,6 +1000,41 @@ public class UI extends JFrame {
       out.flush();
       System.out.println(0);
     } catch (IOException e) {}
+  }
+
+  private void onFileSelected(File file) {
+    try {
+      FileInputStream fis = new FileInputStream(file);
+      byte[] buffer = new byte[1024];
+
+      out.writeInt(5); // 5 means this is a file
+      out.writeInt((int) file.length());
+
+      int count;
+      while ((count = fis.read(buffer)) > 0) {
+        out.write(buffer, 0, count);
+      }
+
+      out.flush();
+      fis.close();
+    } catch (IOException e) {
+      e.printStackTrace(); // for debugging, remove it in production stage
+    }
+  }
+
+  private void sendCoordinates(int x, int y) {
+    if (x < data.length && y < data[0].length) {
+      try {
+        out.writeInt(1);
+        out.writeInt(selectedColor);
+        out.writeInt(x);
+        out.writeInt(y);
+        System.out.println("Sending " + x + ", " + y);
+        out.flush();
+      } catch (IOException ex) {
+        ex.printStackTrace(); // for debugging, remove it in production stage
+      }
+    }
   }
 
   /**
