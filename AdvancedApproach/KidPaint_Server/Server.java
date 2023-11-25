@@ -180,6 +180,7 @@ public class Server {
               break;
             case 5:
               forwardFileMessage(in, studio);
+              break;
             default:
               System.out.println("Unknown message type");
           }

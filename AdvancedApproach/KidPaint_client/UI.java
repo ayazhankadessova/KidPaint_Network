@@ -171,7 +171,7 @@ public class UI extends JFrame {
     int fileSize = in.readInt();
 
     // Save the file
-    File receivedFile = new File("receivedFile");
+    File receivedFile = new File("receivedFile_new");
     FileOutputStream fos = new FileOutputStream(receivedFile);
 
     int read = 0;
@@ -702,28 +702,22 @@ public class UI extends JFrame {
     tglPen.setSelected(true);
     toolPanel.add(tglPen);
 
-    // Create a slider with a range from 1 to 5
-    JSlider penSizeSlider = new JSlider(1, 5);
+    // Create an erase button
+    JButton eraseButton = new JButton("Erase");
 
-    // Set the initial value
-    penSizeSlider.setValue(1);
-
-    // Add labels to the slider
-    penSizeSlider.setPaintLabels(true);
-
-    // Add the slider to the tool panel
-    toolPanel.add(new JLabel("Pen Size:"));
-    toolPanel.add(penSizeSlider);
-
-    // Add a change listener to the slider to update the pen size when the slider is moved
-    penSizeSlider.addChangeListener(
-      new ChangeListener() {
-        public void stateChanged(ChangeEvent e) {
-          penSize = ((JSlider) e.getSource()).getValue();
-          System.out.println("Pen size: " + penSize);
+    // Add an action listener to the erase button
+    eraseButton.addActionListener(
+      new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          // Set the selected color to black when the erase button is clicked
+          selectedColor = Color.BLACK.getRGB();
         }
       }
     );
+
+    // Add the erase button to the tool panel
+    toolPanel.add(eraseButton);
 
     String[] shapes = { "Square", "Triangle", "Circle", "Diamond" };
     JComboBox<String> shapeList = new JComboBox<>(shapes);
@@ -751,6 +745,29 @@ public class UI extends JFrame {
     JButton clear = new JButton("Clear");
     // clear.setPreferredSize(new Dimension(50, 25)); // set preferred size
     toolPanel.add(clear);
+
+    // Create a slider with a range from 1 to 3
+    JSlider penSizeSlider = new JSlider(1, 3);
+
+    // Set the initial value
+    penSizeSlider.setValue(1);
+
+    // Add labels to the slider
+    penSizeSlider.setPaintLabels(true);
+
+    // Add the slider to the tool panel
+    toolPanel.add(new JLabel("Pen Size:"));
+    toolPanel.add(penSizeSlider);
+
+    // Add a change listener to the slider to update the pen size when the slider is moved
+    penSizeSlider.addChangeListener(
+      new ChangeListener() {
+        public void stateChanged(ChangeEvent e) {
+          penSize = ((JSlider) e.getSource()).getValue();
+          System.out.println("Pen size: " + penSize);
+        }
+      }
+    );
 
     clear.addActionListener(
       new ActionListener() {
